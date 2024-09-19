@@ -43,7 +43,7 @@ const Converter = {
         }
     },
 
-    toMoney: function (amount: number, max = null) {
+    toMoney: function (amount: any, max = null) {
         let maxF = max ? max : 6;
         if (amount > 1) {
             maxF = 3;
