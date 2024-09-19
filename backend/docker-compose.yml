@@ -1,0 +1,30 @@
+services:
+  thurbe-backend:
+    depends_on:
+      - redis
+    image: thurbe.azurecr.io/thurbe-backend:latest
+    container_name: thurbe-backend
+    restart: always
+    ports:
+      - "80:80"
+    env_file: .env
+    networks:
+      - thurbe-net
+  
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis-data:/data"
+    networks:
+      - thurbe-net
+
+volumes:
+  redis-data:
+
+networks:
+  thurbe-net:
+    driver: bridge

@@ -1,0 +1,45 @@
+{
+  "name": "ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build --force"
+  },
+  "dependencies": {
+    "@aptos-connect/wallet-adapter-plugin": "^2.0.2",
+    "@aptos-labs/ts-sdk": "^1.27.1",
+    "@aptos-labs/wallet-adapter-vue": "^0.3.0",
+    "@types/video.js": "^7.3.58",
+    "@vuepic/vue-datepicker": "^9.0.1",
+    "axios": "^1.7.2",
+    "bignumber.js": "^4.0.2",
+    "firebase": "^10.12.3",
+    "pinia": "^2.1.7",
+    "simple-peer": "^9.11.1",
+    "socket.io-client": "^4.7.5",
+    "timeago.js": "^4.0.2",
+    "videojs-contrib-hls": "^5.15.0",
+    "videojs-flash": "^2.2.1",
+    "vue": "^3.4.29",
+    "vue-router": "^4.3.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/fluent-ffmpeg": "^2.1.24",
+    "@types/node": "^20.14.5",
+    "@types/simple-peer": "^9.11.8",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vitejs/plugin-vue-jsx": "^4.0.0",
+    "@vue/tsconfig": "^0.5.1",
+    "npm-run-all2": "^6.2.0",
+    "typescript": "~5.4.0",
+    "video.js": "^8.16.1",
+    "vite": "^5.3.1",
+    "vue-tsc": "^2.0.21"
+  }
+}
