@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ChannelHeader from '@/components/ChannelHeader.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { type Channel } from "@/types";
 import { onMounted, ref } from "vue";
 import { useRoute } from 'vue-router';
@@ -18,7 +18,7 @@ const superFollowAmount = ref(BigInt(0));
 
 const getChannel = async () => {
     loading.value = true;
-    channel.value = await ThurbeAPI.getChannel(route.params.id as any);
+    channel.value = await EnthroAPI.getChannel(route.params.id as any);
 
     getFollows();
 

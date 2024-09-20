@@ -25,7 +25,7 @@ import { onMounted, ref, onBeforeUnmount } from "vue";
 import { useRoute } from 'vue-router';
 // @ts-ignore
 import { format as formatDate } from 'timeago.js';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import SocketAPI from '@/scripts/socket-api';
 import Media from '@/scripts/media';
 import ThetaAPI from '@/scripts/theta-api';
@@ -78,7 +78,7 @@ let player: any = null;
 
 const getStream = async () => {
     loading.value = true;
-    const result = await ThurbeAPI.getStream(route.params.id as any);
+    const result = await EnthroAPI.getStream(route.params.id as any);
     stream.value = result;
     if (result) {
         init();
@@ -115,7 +115,7 @@ const follow = async () => {
             category: 'success'
         });
 
-        await ThurbeAPI.followAccount(
+        await EnthroAPI.followAccount(
             (stream.value?.streamer as Account).address as `0x${string}`,
             walletStore.address
         );
@@ -161,7 +161,7 @@ const superFollow = async () => {
             category: 'success'
         });
 
-        await ThurbeAPI.followAccount(
+        await EnthroAPI.followAccount(
             (stream.value?.streamer as Account).address as `0x${string}`,
             walletStore.address
         );
@@ -304,7 +304,7 @@ const like = async () => {
         return;
     }
 
-    await ThurbeAPI.likeStream(
+    await EnthroAPI.likeStream(
         walletStore.address,
         stream.value?.streamId!
     );
@@ -322,7 +322,7 @@ const dislike = async () => {
         return;
     }
 
-    await ThurbeAPI.dislikeStream(
+    await EnthroAPI.dislikeStream(
         walletStore.address,
         stream.value?.streamId!
     );
@@ -356,7 +356,7 @@ const startStream = async () => {
     let createdStream = await ThetaAPI.startStream(stream.value?.thetaId!);
 
     if (!createdStream) {
-        const existingStream = await ThurbeAPI.getStream(stream.value?.streamId!);
+        const existingStream = await EnthroAPI.getStream(stream.value?.streamId!);
         if (existingStream && existingStream.stream_server && existingStream.stream_key) {
             createdStream = {
                 id: existingStream.thetaId!,
@@ -376,7 +376,7 @@ const startStream = async () => {
         return;
     }
 
-    const updatedStream = await ThurbeAPI.startStream(
+    const updatedStream = await EnthroAPI.startStream(
         stream.value?.streamId!,
         createdStream.stream_server,
         createdStream.stream_key
@@ -481,7 +481,7 @@ const init = async () => {
     if (isCreator()) {
         payable.value = true;
     }
-    
+
     videoUrl.value = await ThetaAPI.getStreamUrl(stream.value?.thetaId!);
 
     if (payable.value && videoPlayer.value && videoUrl.value && stream.value?.live) {
@@ -533,7 +533,7 @@ const refresh = async (isInit: boolean = true) => {
         init();
     }
 
-    const result = await ThurbeAPI.getStream(route.params.id as any);
+    const result = await EnthroAPI.getStream(route.params.id as any);
     if (result) {
         stream.value = result;
     }
@@ -543,7 +543,7 @@ const stopStream = async () => {
     if (ending.value) return;
     ending.value = true;
 
-    await ThurbeAPI.endStream(stream.value?.streamId!);
+    await EnthroAPI.endStream(stream.value?.streamId!);
 
     if (player) {
         player.pause();
@@ -581,7 +581,7 @@ onBeforeUnmount(() => {
     }
 
     if (!isCreator() && payable.value) {
-        ThurbeAPI.joinStream(
+        EnthroAPI.joinStream(
             walletStore.address || 'undefined',
             stream.value?.streamId!
         );

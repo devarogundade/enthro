@@ -7,7 +7,7 @@ import { onMounted, ref } from "vue";
 // @ts-ignore
 import { format as formatDate } from 'timeago.js';
 import Converter from '@/scripts/converter';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -16,7 +16,7 @@ const videos = ref<Video[]>([]);
 
 const getVideos = async () => {
     loading.value = true;
-    const result = await ThurbeAPI.getVideos(1, route.params.id as any);
+    const result = await EnthroAPI.getVideos(1, route.params.id as any);
     if (result && result.data) {
         videos.value = result.data;
     }

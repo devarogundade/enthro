@@ -16,7 +16,7 @@ import { ViewerType, type VideoForm } from '@/types';
 import { notify } from '@/reactives/notify';
 import Contract from '@/scripts/contract';
 import ThetaAPI from '@/scripts/theta-api';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import Storage from '@/scripts/storage';
 import { useWalletStore } from '@/stores/wallet';
 import { useRouter } from 'vue-router';
@@ -153,7 +153,7 @@ const uploadVideo = async () => {
     }
 
     Storage.upload(video.value.thumbnail, videoId, async (thumbnailUrl: string) => {
-        const upload = await ThurbeAPI.uploadVideo(
+        const upload = await EnthroAPI.uploadVideo(
             videoId,
             walletStore.address!,
             video.value.name!,

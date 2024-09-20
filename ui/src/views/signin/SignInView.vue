@@ -5,22 +5,11 @@ import { useWalletStore } from '@/stores/wallet';
 import { WalletType, AccountType, type AccountForm } from '@/types';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { notify } from '@/reactives/notify';
-import { useWallet, WalletName } from "@aptos-labs/wallet-adapter-vue";
-import { AptosConnectWallet } from "@aptos-connect/wallet-adapter-plugin";
-import { Network } from "@aptos-labs/ts-sdk";
-
-const aptosAptosConnect = new AptosConnectWallet({ network: Network.TESTNET });
-
-const wallets: any[] = [aptosAptosConnect];
-
-const wallet = useWallet({
-    plugins: wallets,
-    dappConfig: { network: Network.TESTNET },
-    onError: (error) => { console.log("error", error); }
-});
+import { UserResponseStatus } from '@aptos-labs/wallet-standard';
+import { aptosConnectWallet } from '@/scripts/connect';
 
 const walletStore = useWalletStore();
 const router = useRouter();
@@ -30,16 +19,25 @@ const fetchingAccount = ref<boolean>(false);
 const accountCreateOptions = ref<boolean>(false);
 const accountCreateForm = ref<AccountForm | null>(null);
 
-const connectWallet = () => {
-    localStorage.setItem('wallet-type', walletStore.walletType.toString());
-
+const connectWallet = async () => {
     if (walletStore.address) {
         fetchAccount(walletStore.address);
         return;
     }
 
     if (walletStore.walletType == WalletType.AptosConnect) {
-        wallet.connect(WalletName<'Continue with Google'>);
+        const response = await aptosConnectWallet.connect();
+
+        if (response.status == UserResponseStatus.APPROVED) {
+            walletStore.setAddress(response.args.address.toString());
+            fetchAccount(response.args.address.toString());
+        } else {
+            notify.push({
+                title: 'Error: Failed to connect.',
+                description: 'User rejects connection.',
+                category: 'error'
+            });
+        }
     }
 
     if (walletStore.walletType == WalletType.Petra) {
@@ -61,13 +59,12 @@ const connectWallet = () => {
 
 const fetchAccount = async (address: string) => {
     fetchingAccount.value = true;
-    const account = await ThurbeAPI.getAccount(address);
+    const account = await EnthroAPI.getAccount(address);
     walletStore.setAccount(account);
 
     if (!account) {
         accountCreateOptions.value = true;
     } else {
-        localStorage.setItem('address', address || 'null');
         router.push('/');
     }
 
@@ -110,7 +107,7 @@ const accountCreation = async (form: AccountForm) => {
         return;
     }
 
-    const account = await ThurbeAPI.createAccount(
+    const account = await EnthroAPI.createAccount(
         walletStore.address,
         form.name,
         form.email,
@@ -155,14 +152,7 @@ const googleAuthRequest = async () => {
 };
 
 onMounted(() => {
-    // watchAccount(config, {
-    //     onChange(account) {
-    //         if (account.address) {
-    //             walletStore.setAddress(account.address);
-    //             fetchAccount(account.address);
-    //         }
-    //     },
-    // });
+
 });
 </script>
 

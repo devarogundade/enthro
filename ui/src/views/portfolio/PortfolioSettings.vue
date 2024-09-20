@@ -4,7 +4,7 @@ import ImportIcon from '@/components/icons/ImportIcon.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
 import TickSquareIcon from '@/components/icons/TickSquareIcon.vue';
 import EditIcon from '@/components/icons/EditIcon.vue';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { onMounted, ref } from "vue";
 import { type ChannelForm, type Channel } from '@/types';
 import Storage from '@/scripts/storage';
@@ -143,7 +143,7 @@ const updateChannel = async () => {
         return;
     }
 
-    const createdChannel = await ThurbeAPI.createChannel(
+    const createdChannel = await EnthroAPI.createChannel(
         walletStore.address,
         channel.value.name!,
         image_url,
@@ -160,7 +160,7 @@ const updateChannel = async () => {
         return;
     }
 
-    const account = await ThurbeAPI.getAccount(walletStore.address);
+    const account = await EnthroAPI.getAccount(walletStore.address);
     walletStore.setAccount(account);
 
     notify.push({
@@ -175,7 +175,7 @@ const updateChannel = async () => {
 
 const getChannel = async () => {
     loading.value = true;
-    existingChannel.value = await ThurbeAPI.getChannel(walletStore.address as any);
+    existingChannel.value = await EnthroAPI.getChannel(walletStore.address as any);
 
     if (existingChannel.value) {
         channel.value = {

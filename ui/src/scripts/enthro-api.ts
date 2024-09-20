@@ -5,7 +5,7 @@ const client = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL
 });
 
-const ThurbeAPI = {
+const EnthroAPI = {
     async createAccount(
         address: string,
         name: string,
@@ -334,4 +334,4 @@ const ThurbeAPI = {
     }
 };
 
-export default ThurbeAPI;
+export default EnthroAPI;

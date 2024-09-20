@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
+import { useRouter } from 'vue-router';
 import NotifyPop from '@/components/NotifyPop.vue';
-
+import { onMounted, ref } from 'vue';
+import { useWalletStore } from '@/stores/wallet';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import EnthroAPI from '@/scripts/enthro-api';
+import { aptosConnectWallet } from '@/scripts/connect';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FS_API_KEY,
@@ -18,6 +21,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 getAnalytics(app);
+
+const walletStore = useWalletStore();
+const router = useRouter();
+
+const fetchAccount = async (address: string) => {
+  const account = await EnthroAPI.getAccount(address);
+  walletStore.setAccount(account);
+
+  if (account) {
+    router.push('/');
+  }
+};
+
+onMounted(() => {
+  const accounts = aptosConnectWallet.accounts;
+
+  if (accounts.length > 0) {
+    walletStore.setAddress(accounts[0].address.toString());
+    fetchAccount(accounts[0].address.toString());
+  }
+
+  aptosConnectWallet.onAccountChange((account) => {
+    if (account.address) {
+      walletStore.setAddress(account.address.toString());
+      fetchAccount(account.address.toString());
+    }
+  });
+});
 </script>
 
 <template>

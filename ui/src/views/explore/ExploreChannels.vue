@@ -7,7 +7,7 @@ import RadarIcon from '@/components/icons/RadarIcon.vue';
 import { type Channel, type Account } from "@/types";
 import { onMounted, ref } from "vue";
 // @ts-ignore
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { useWalletStore } from '@/stores/wallet';
 const walletStore = useWalletStore();
 
@@ -16,7 +16,7 @@ const channels = ref<Channel[]>([]);
 
 const getChannels = async () => {
     loading.value = true;
-    const result = await ThurbeAPI.getChannels(1);
+    const result = await EnthroAPI.getChannels(1);
     if (result && result.data) {
         channels.value = result.data;
     }

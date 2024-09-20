@@ -8,7 +8,7 @@ import ProgressBox from '@/components/ProgressBox.vue';
 import { format as formatDate } from 'timeago.js';
 import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 
 const walletStore = useWalletStore();
 const loading = ref<boolean>(true);
@@ -16,7 +16,7 @@ const videos = ref<Video[]>([]);
 
 const getVideos = async () => {
     loading.value = true;
-    const result = await ThurbeAPI.getVideos(1, walletStore.address!);
+    const result = await EnthroAPI.getVideos(1, walletStore.address!);
     console.log(result);
     if (result && result.data) {
         videos.value = result.data;

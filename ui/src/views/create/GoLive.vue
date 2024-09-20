@@ -16,7 +16,7 @@ import { ViewerType, StreamType, type StreamForm } from '@/types';
 import { notify } from '@/reactives/notify';
 import Contract from '@/scripts/contract';
 import ThetaAPI from '@/scripts/theta-api';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import Storage from '@/scripts/storage';
 import { useWalletStore } from '@/stores/wallet';
 import GoLiveOption from '@/views/pops/GoLiveOption.vue';
@@ -149,7 +149,7 @@ const uploadVideo = async () => {
     }
 
     Storage.upload(stream.value.thumbnail, streamId, async (thumbnailUrl: string) => {
-        const upload = await ThurbeAPI.createStream(
+        const upload = await EnthroAPI.createStream(
             streamId,
             walletStore.address!,
             stream.value.name!,

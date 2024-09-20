@@ -9,7 +9,7 @@ import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
 import { useRoute } from 'vue-router';
 import Contract from '@/scripts/contract';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { notify } from '@/reactives/notify';
 import { ref } from "vue";
 import SuperFollow from '@/views/pops/SuperFollow.vue';
@@ -60,7 +60,7 @@ const follow = async () => {
             category: 'success'
         });
 
-        await ThurbeAPI.followAccount(
+        await EnthroAPI.followAccount(
             props.channel.owner.address as `0x${string}`,
             walletStore.address
         );
@@ -101,7 +101,7 @@ const superFollow = async () => {
             category: 'success'
         });
 
-        await ThurbeAPI.followAccount(
+        await EnthroAPI.followAccount(
             props.channel.owner.address as `0x${string}`,
             walletStore.address
         );

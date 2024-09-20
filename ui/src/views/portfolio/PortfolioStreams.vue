@@ -8,7 +8,7 @@ import { onMounted, ref } from "vue";
 // @ts-ignore
 import { format as formatDate } from 'timeago.js';
 import Converter from '@/scripts/converter';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import { useWalletStore } from '@/stores/wallet';
 
 const walletStore = useWalletStore();
@@ -17,7 +17,7 @@ const streams = ref<Stream[]>([]);
 
 const getStreams = async () => {
     loading.value = true;
-    const result = await ThurbeAPI.getStreams(1, walletStore.address!);
+    const result = await EnthroAPI.getStreams(1, walletStore.address!);
     console.log(result);
     if (result && result.data) {
         streams.value = result.data;

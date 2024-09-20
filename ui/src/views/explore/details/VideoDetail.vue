@@ -20,7 +20,7 @@ import { onMounted, ref, onBeforeUnmount } from "vue";
 import { useRoute } from 'vue-router';
 // @ts-ignore
 import { format as formatDate } from 'timeago.js';
-import ThurbeAPI from '@/scripts/thurbe-api';
+import EnthroAPI from '@/scripts/enthro-api';
 import SocketAPI from '@/scripts/socket-api';
 import ThetaAPI from '@/scripts/theta-api';
 import Contract, { thurbeTokenId, thurbeId } from '@/scripts/contract';
@@ -61,7 +61,7 @@ let player: any = null;
 
 const getVideo = async () => {
     loading.value = true;
-    const result = await ThurbeAPI.getVideo(route.params.id as any);
+    const result = await EnthroAPI.getVideo(route.params.id as any);
     video.value = result;
     if (result) {
         init();
@@ -98,7 +98,7 @@ const follow = async () => {
             category: 'success'
         });
 
-        await ThurbeAPI.followAccount(
+        await EnthroAPI.followAccount(
             (video.value?.streamer as Account).address as `0x${string}`,
             walletStore.address
         );
@@ -143,7 +143,7 @@ const superFollow = async () => {
             category: 'success'
         });
 
-        await ThurbeAPI.followAccount(
+        await EnthroAPI.followAccount(
             (video.value?.streamer as Account).address as `0x${string}`,
             walletStore.address
         );
@@ -271,7 +271,7 @@ const like = async () => {
         return;
     }
 
-    await ThurbeAPI.likeVideo(
+    await EnthroAPI.likeVideo(
         walletStore.address,
         video.value?.videoId!
     );
@@ -289,7 +289,7 @@ const dislike = async () => {
         return;
     }
 
-    await ThurbeAPI.dislikeVideo(
+    await EnthroAPI.dislikeVideo(
         walletStore.address,
         video.value?.videoId!
     );
@@ -384,7 +384,7 @@ const refresh = async (isInit: boolean = true) => {
         init();
     }
 
-    const result = await ThurbeAPI.getVideo(route.params.id as any);
+    const result = await EnthroAPI.getVideo(route.params.id as any);
     if (result) {
         video.value = result;
     }
@@ -416,7 +416,7 @@ onBeforeUnmount(() => {
     }
 
     if (!isCreator() && payable.value) {
-        ThurbeAPI.watchVideo(
+        EnthroAPI.watchVideo(
             walletStore.address || 'undefined',
             video.value?.videoId!
         );
