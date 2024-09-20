@@ -12,7 +12,7 @@ import CalendarIcon from '@/components/icons/CalendarIcon.vue';
 import RadioToggleIcon from '@/components/icons/RadioToggleIcon.vue';
 import TickSquareIcon from '@/components/icons/TickSquareIcon.vue';
 import { ref } from 'vue';
-import { ViewerType, StreamType, type StreamForm } from '@/types';
+import { Visibility, StreamType, type StreamForm } from '@/types';
 import { notify } from '@/reactives/notify';
 import Contract from '@/scripts/contract';
 import ThetaAPI from '@/scripts/theta-api';
@@ -33,7 +33,7 @@ const stream = ref<StreamForm>({
     description: null,
     thumbnail: undefined,
     thumbnail_file_url: undefined,
-    viewerType: ViewerType.Follower,
+    visibility: Visibility.Follower,
     streamType: StreamType.Direct,
     tips: false,
     start_at: new Date()
@@ -62,11 +62,11 @@ const selectThumbnail = (event: any) => {
     }
 };
 
-const switchViewers = (viewerType: ViewerType) => {
-    if (stream.value.viewerType == viewerType && viewerType == ViewerType.Everyone) {
-        stream.value.viewerType = ViewerType.Follower;
+const switchViewers = (visibility: Visibility) => {
+    if (stream.value.visibility == visibility && visibility == Visibility.Everyone) {
+        stream.value.visibility = Visibility.Follower;
     } else {
-        stream.value.viewerType = viewerType;
+        stream.value.visibility = visibility;
     }
 };
 
@@ -118,12 +118,25 @@ const uploadVideo = async () => {
 
     uploading.value = true;
 
-    const streamId = Contract.newId();
+    const streamAddress = Contract.getResourceAddress(
+        walletStore.address, `Stream_${stream.value.name}`
+    );
+
+    const thumbnailUrl = await Storage.awaitUpload(
+        stream.value.thumbnail, streamAddress
+    );
+
+    const startSecs = Number(
+        stream.value.start_at.getMilliseconds() / 1000
+    ).toFixed(0);
 
     const txHash = await Contract.startStream(
-        streamId,
-        stream.value.viewerType == ViewerType.SuperFollower,
-        stream.value.tips
+        stream.value.name,
+        stream.value.description || '',
+        stream.value.visibility,
+        stream.value.tips,
+        thumbnailUrl || '',
+        startSecs
     );
 
     if (!txHash) {
@@ -148,46 +161,37 @@ const uploadVideo = async () => {
         return;
     }
 
-    Storage.upload(stream.value.thumbnail, streamId, async (thumbnailUrl: string) => {
-        const upload = await EnthroAPI.createStream(
-            streamId,
-            walletStore.address!,
-            stream.value.name!,
-            stream.value.description,
-            streamResponse.id,
-            thumbnailUrl,
-            stream.value.viewerType,
-            stream.value.streamType,
-            stream.value.tips,
-            stream.value.start_at
-        );
+    const upload = await EnthroAPI.createStream(
+        streamAddress,
+        walletStore.address!,
+        stream.value.name!,
+        stream.value.description,
+        streamResponse.id,
+        thumbnailUrl,
+        stream.value.visibility,
+        stream.value.streamType,
+        stream.value.tips,
+        stream.value.start_at
+    );
 
-        if (!upload) {
-            notify.push({
-                title: 'Error: Uploading video file',
-                description: 'Please try again',
-                category: 'error'
-            });
-            uploading.value = false;
-            return;
-        }
-
-        notify.push({
-            title: 'Successful: Stream created',
-            description: 'We have notified your followers',
-            category: 'success'
-        });
-        uploading.value = false;
-
-        router.push('/portfolio');
-    }, () => {
+    if (!upload) {
         notify.push({
             title: 'Error: Uploading video file',
             description: 'Please try again',
             category: 'error'
         });
         uploading.value = false;
+        return;
+    }
+
+    notify.push({
+        title: 'Successful: Stream created',
+        description: 'We have notified your followers',
+        category: 'success'
     });
+    uploading.value = false;
+
+    router.push('/portfolio');
 };
 </script>
 
@@ -260,16 +264,16 @@ const uploadVideo = async () => {
 
                         <div class="public_check">
                             <p>Everyone Instead</p>
-                            <div class="checkbox" @click="switchViewers(ViewerType.Everyone)">
-                                <TickSquareIcon :active="stream.viewerType == ViewerType.Everyone" />
+                            <div class="checkbox" @click="switchViewers(Visibility.Everyone)">
+                                <TickSquareIcon :active="stream.visibility == Visibility.Everyone" />
                             </div>
                         </div>
                     </div>
 
                     <div class="viewers">
-                        <div class="viewer" @click="switchViewers(ViewerType.Follower)">
+                        <div class="viewer" @click="switchViewers(Visibility.Follower)">
                             <div class="radio">
-                                <RadioToggleIcon :active="stream.viewerType == ViewerType.Follower" />
+                                <RadioToggleIcon :active="stream.visibility == Visibility.Follower" />
                             </div>
                             <div class="viewer_title">
                                 <UserFullIcon />
@@ -280,9 +284,9 @@ const uploadVideo = async () => {
                             </p>
                         </div>
 
-                        <div class="viewer" @click="switchViewers(ViewerType.SuperFollower)">
+                        <div class="viewer" @click="switchViewers(Visibility.SuperFollower)">
                             <div class="radio">
-                                <RadioToggleIcon :active="stream.viewerType == ViewerType.SuperFollower" />
+                                <RadioToggleIcon :active="stream.visibility == Visibility.SuperFollower" />
                             </div>
                             <div class="viewer_title">
                                 <FlashIcon />

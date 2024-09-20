@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 
 export const useWalletStore = defineStore('address', {
   state: () => ({
-    address: null as `0x${string}` | null,
+    address: null as string | null,
     walletType: WalletType.AptosConnect,
     account: null as Account | null,
     accountType: AccountType.Google
@@ -14,7 +14,7 @@ export const useWalletStore = defineStore('address', {
         this.address = null;
         return;
       }
-      this.address = newAddress as `0x${string}`;
+      this.address = newAddress;
     },
     setWalletType(newWalletType: WalletType) {
       this.walletType = newWalletType;

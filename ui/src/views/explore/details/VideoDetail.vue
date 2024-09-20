@@ -15,7 +15,7 @@ import ProgressBox from '@/components/ProgressBox.vue';
 import EditIcon from '@/components/icons/EditIcon.vue';
 import CloseIcon from '@/components/icons/CloseIcon.vue';
 import SendIcon from '@/components/icons/SendIcon.vue';
-import { type Video, type Account, ViewerType, type Chat } from "@/types";
+import { type Video, type Account, Visibility, type Chat } from "@/types";
 import { onMounted, ref, onBeforeUnmount } from "vue";
 import { useRoute } from 'vue-router';
 // @ts-ignore
@@ -23,7 +23,7 @@ import { format as formatDate } from 'timeago.js';
 import EnthroAPI from '@/scripts/enthro-api';
 import SocketAPI from '@/scripts/socket-api';
 import ThetaAPI from '@/scripts/theta-api';
-import Contract, { thurbeTokenId, thurbeId } from '@/scripts/contract';
+import Contract from '@/scripts/contract';
 import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
 import SendTip from '@/views/pops/SendTip.vue';
@@ -53,7 +53,6 @@ const tip = ref({
 });
 const super_follow = ref({
     open: false,
-    amount: BigInt(0),
     loading: false
 });
 const videoPlayer = ref<HTMLVideoElement | null>(null);
@@ -65,7 +64,7 @@ const getVideo = async () => {
     video.value = result;
     if (result) {
         init();
-        getChats(video.value?.videoId!, (chts: Chat[]) => {
+        getChats(video.value?.videoAddress!, (chts: Chat[]) => {
             chats.value = chts;
         });
     }
@@ -84,11 +83,9 @@ const follow = async () => {
 
     following.value = true;
 
-    const txHash = await Contract.mintCard(
-        (video.value?.streamer as Account).address as `0x${string}`,
+    const txHash = await Contract.followStreamer(
         walletStore.address,
-        false,
-        BigInt(0)
+        Visibility.Follower
     );
 
     if (txHash) {
@@ -99,7 +96,7 @@ const follow = async () => {
         });
 
         await EnthroAPI.followAccount(
-            (video.value?.streamer as Account).address as `0x${string}`,
+            (video.value?.streamer as Account).address as string,
             walletStore.address
         );
 
@@ -127,11 +124,10 @@ const superFollow = async () => {
     }
 
     superFollowing.value = true;
-    const txHash = await Contract.mintCard(
-        (video.value?.streamer as Account).address as `0x${string}`,
+
+    const txHash = await Contract.followStreamer(
         walletStore.address,
-        true,
-        super_follow.value.amount
+        Visibility.SuperFollower
     );
 
     super_follow.value.open = false;
@@ -144,7 +140,7 @@ const superFollow = async () => {
         });
 
         await EnthroAPI.followAccount(
-            (video.value?.streamer as Account).address as `0x${string}`,
+            (video.value?.streamer as Account).address as string,
             walletStore.address
         );
 
@@ -200,31 +196,9 @@ const sendComment = async () => {
     commenting.value = true;
 
     if (tip.value.amount && tip.value.amount > 0) {
-        // const allowance = await getAllowance(
-        //     thurbeTokenId, walletStore.address, thurbeId
-        // );
-
-        // if (Converter.fromWei(allowance) < tip.value.amount) {
-        //     const txHashApprove = await approve(
-        //         thurbeTokenId,
-        //         thurbeId,
-        //         Converter.toWei(tip.value.amount)
-        //     );
-
-        //     if (!txHashApprove) {
-        //         notify.push({
-        //             title: 'Error: Interracting with smart contracts',
-        //             description: 'Please try again',
-        //             category: 'error'
-        //         });
-        //         commenting.value = false;
-        //         return;
-        //     }
-        // }
-
         const txHash = await Contract.tipVideo(
-            video.value?.videoId as `0x${string}`,
-            Converter.toWei(tip.value.amount)
+            video.value?.videoAddress as string,
+            Converter.toOctas(tip.value.amount)
         );
 
         if (!txHash) {
@@ -239,7 +213,7 @@ const sendComment = async () => {
     }
 
     const chat: Chat = {
-        channelId: video.value?.videoId!,
+        channelId: video.value?.videoAddress!,
         text: text.value!,
         from: {
             name: walletStore.account?.name!,
@@ -273,7 +247,7 @@ const like = async () => {
 
     await EnthroAPI.likeVideo(
         walletStore.address,
-        video.value?.videoId!
+        video.value?.videoAddress!
     );
 
     refresh(false);
@@ -291,44 +265,25 @@ const dislike = async () => {
 
     await EnthroAPI.dislikeVideo(
         walletStore.address,
-        video.value?.videoId!
+        video.value?.videoAddress!
     );
 
     refresh(false);
 };
 
 const init = async () => {
-    const cardId = await Contract.getCardId(
-        (video.value?.streamer as Account).address as `0x${string}`,
-        false
-    );
+    // isFollow.value = cardBalance > 0;
+    // isSuperFollow.value = cardBalance > 0;
 
-    const exclusiveCardId = await Contract.getCardId(
-        (video.value?.streamer as Account).address as `0x${string}`,
-        true
-    );
-
-    if (walletStore.address) {
-        // if (cardId) {
-        //     const cardBalance = await getNftBalance(cardId, walletStore.address);
-        //     isFollow.value = cardBalance > 0;
-        // }
-
-        // if (exclusiveCardId) {
-        //     const cardBalance = await getNftBalance(exclusiveCardId, walletStore.address);
-        //     isSuperFollow.value = cardBalance > 0;
-        // }
-    }
-
-    if (video.value?.viewerType == ViewerType.Everyone) {
+    if (video.value?.visibility == Visibility.Everyone) {
         payable.value = true;
     }
 
-    if (video.value?.viewerType == ViewerType.Follower) {
+    if (video.value?.visibility == Visibility.Follower) {
         payable.value = isFollow.value || isSuperFollow.value;
     }
 
-    if (video.value?.viewerType == ViewerType.SuperFollower) {
+    if (video.value?.visibility == Visibility.SuperFollower) {
         payable.value = isSuperFollow.value;
     }
 
@@ -369,10 +324,6 @@ const init = async () => {
     }
 
     loading.value = false;
-
-    if (exclusiveCardId) {
-        super_follow.value.amount = await Contract.getMintPrice(exclusiveCardId);
-    }
 };
 
 const isCreator = (): boolean => {
@@ -395,7 +346,7 @@ const share = () => {
         navigator.share({
             title: video.value?.name,
             text: video.value?.description || '',
-            url: `https://thurbe.xyz/videos/${video.value?.videoId!}`
+            url: `https://thurbe.xyz/videos/${video.value?.videoAddress!}`
         });
     } catch (error) {
         notify.push({
@@ -418,7 +369,7 @@ onBeforeUnmount(() => {
     if (!isCreator() && payable.value) {
         EnthroAPI.watchVideo(
             walletStore.address || 'undefined',
-            video.value?.videoId!
+            video.value?.videoAddress!
         );
     }
 });
@@ -441,7 +392,7 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
                 <div class="restricted"
-                    v-else-if="!isCreator() && video.viewerType == ViewerType.SuperFollower && !isSuperFollow">
+                    v-else-if="!isCreator() && video.visibility == Visibility.SuperFollower && !isSuperFollow">
                     <LockIcon />
                     <h3>Oops, Sorry You are Ineligible to View this Content</h3>
                     <p>This channel owner only set this content to be to be viewable by Super followers only, Click the
@@ -452,7 +403,7 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
                 <div class="restricted"
-                    v-else-if="!isCreator() && video.viewerType == ViewerType.Follower && !(isFollow || isSuperFollow)">
+                    v-else-if="!isCreator() && video.visibility == Visibility.Follower && !(isFollow || isSuperFollow)">
                     <LockIcon />
                     <h3>Oops, Sorry You are Ineligible to View this Content</h3>
                     <p>This channel owner only set this content to be to be viewable by followers only, Click the
@@ -628,9 +579,9 @@ onBeforeUnmount(() => {
 
         <SendTip :channel="(video.streamer as Account).channel!" v-if="tip.open" @close="tip.open = false"
             @continue="setTip" />
-        <SuperFollow :loading="superFollowing" :channel="(video.streamer as Account).channel!"
-            :amount="super_follow.amount" v-if="super_follow.open" @close="super_follow.open = false"
-            @continue="superFollow" />
+
+        <SuperFollow :loading="superFollowing" :channel="(video.streamer as Account).channel!" v-if="super_follow.open"
+            @close="super_follow.open = false" @continue="superFollow" />
     </div>
 </template>
 

@@ -52,7 +52,7 @@ export async function sendChat(
     }
 }
 
-function newId(): `0x${string}` {
+function newId(): string {
     const array = new Uint8Array(32);
     window.crypto.getRandomValues(array);
     return `0x${Array.from(array).map(byte => byte.toString(16).padStart(2, '0')).join('')}`;

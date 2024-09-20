@@ -19,7 +19,7 @@ import MicIcon from '@/components/icons/MicIcon.vue';
 import ConfigIcon from '@/components/icons/ConfigIcon.vue';
 import OffWifiIcon from '@/components/icons/OffWifiIcon.vue';
 import StreamConfigs from '@/views/pops/StreamConfigs.vue';
-import { type Stream, type Account, ViewerType, type Chat, StreamType } from "@/types";
+import { type Stream, type Account, Visibility, type Chat, StreamType } from "@/types";
 import ProgressBox from '@/components/ProgressBox.vue';
 import { onMounted, ref, onBeforeUnmount } from "vue";
 import { useRoute } from 'vue-router';
@@ -29,7 +29,7 @@ import EnthroAPI from '@/scripts/enthro-api';
 import SocketAPI from '@/scripts/socket-api';
 import Media from '@/scripts/media';
 import ThetaAPI from '@/scripts/theta-api';
-import Contract, { thurbeTokenId, thurbeId } from '@/scripts/contract';
+import Contract from '@/scripts/contract';
 import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
 import SendTip from '@/views/pops/SendTip.vue';
@@ -62,7 +62,6 @@ const tip = ref({
 });
 const super_follow = ref({
     open: false,
-    amount: BigInt(0),
     loading: false
 });
 const streamConfigs = ref({
@@ -82,7 +81,7 @@ const getStream = async () => {
     stream.value = result;
     if (result) {
         init();
-        getChats(stream.value?.streamId!, (chts: Chat[]) => {
+        getChats(stream.value?.streamAddress!, (chts: Chat[]) => {
             chats.value = chts;
         });
     }
@@ -101,11 +100,9 @@ const follow = async () => {
 
     following.value = true;
 
-    const txHash = await Contract.mintCard(
-        (stream.value?.streamer as Account).address as `0x${string}`,
+    const txHash = await Contract.followStreamer(
         walletStore.address,
-        false,
-        BigInt(0)
+        Visibility.Follower
     );
 
     if (txHash) {
@@ -116,7 +113,7 @@ const follow = async () => {
         });
 
         await EnthroAPI.followAccount(
-            (stream.value?.streamer as Account).address as `0x${string}`,
+            (stream.value?.streamer as Account).address as string,
             walletStore.address
         );
 
@@ -145,11 +142,9 @@ const superFollow = async () => {
 
     superFollowing.value = true;
 
-    const txHash = await Contract.mintCard(
-        (stream.value?.streamer as Account).address as `0x${string}`,
+    const txHash = await Contract.followStreamer(
         walletStore.address,
-        true,
-        super_follow.value.amount
+        Visibility.SuperFollower
     );
 
     super_follow.value.open = false;
@@ -162,7 +157,7 @@ const superFollow = async () => {
         });
 
         await EnthroAPI.followAccount(
-            (stream.value?.streamer as Account).address as `0x${string}`,
+            (stream.value?.streamer as Account).address as string,
             walletStore.address
         );
 
@@ -227,31 +222,9 @@ const sendComment = async () => {
     commenting.value = true;
 
     if (tip.value.amount && tip.value.amount > 0) {
-        // const allowance = await getAllowance(
-        //     thurbeTokenId, walletStore.address, thurbeId
-        // );
-
-        // if (Converter.fromWei(allowance) < tip.value.amount) {
-        //     const txHashApprove = await approve(
-        //         thurbeTokenId,
-        //         thurbeId,
-        //         Converter.toWei(tip.value.amount)
-        //     );
-
-        //     if (!txHashApprove) {
-        //         notify.push({
-        //             title: 'Error: Interracting with smart contracts',
-        //             description: 'Please try again',
-        //             category: 'error'
-        //         });
-        //         commenting.value = false;
-        //         return;
-        //     }
-        // }
-
         const txHash = await Contract.tipStream(
-            stream.value?.streamId as `0x${string}`,
-            Converter.toWei(tip.value.amount)
+            stream.value?.streamAddress as string,
+            Converter.toOctas(tip.value.amount)
         );
 
         if (!txHash) {
@@ -272,7 +245,7 @@ const sendComment = async () => {
     }
 
     const chat: Chat = {
-        channelId: stream.value?.streamId!,
+        channelId: stream.value?.streamAddress!,
         text: text.value!,
         from: {
             name: walletStore.account?.name!,
@@ -306,7 +279,7 @@ const like = async () => {
 
     await EnthroAPI.likeStream(
         walletStore.address,
-        stream.value?.streamId!
+        stream.value?.streamAddress!
     );
 
     refresh(false);
@@ -324,7 +297,7 @@ const dislike = async () => {
 
     await EnthroAPI.dislikeStream(
         walletStore.address,
-        stream.value?.streamId!
+        stream.value?.streamAddress!
     );
 
     refresh(false);
@@ -341,7 +314,7 @@ const react = async (emoji: string) => {
     }
 
     socketAPI.emit('reaction', {
-        channelId: stream.value?.streamId!,
+        channelId: stream.value?.streamAddress!,
         emoji
     });
 };
@@ -356,7 +329,7 @@ const startStream = async () => {
     let createdStream = await ThetaAPI.startStream(stream.value?.thetaId!);
 
     if (!createdStream) {
-        const existingStream = await EnthroAPI.getStream(stream.value?.streamId!);
+        const existingStream = await EnthroAPI.getStream(stream.value?.streamAddress!);
         if (existingStream && existingStream.stream_server && existingStream.stream_key) {
             createdStream = {
                 id: existingStream.thetaId!,
@@ -377,7 +350,7 @@ const startStream = async () => {
     }
 
     const updatedStream = await EnthroAPI.startStream(
-        stream.value?.streamId!,
+        stream.value?.streamAddress!,
         createdStream.stream_server,
         createdStream.stream_key
     );
@@ -398,7 +371,7 @@ const startStream = async () => {
             data: {
                 stream_server: createdStream.stream_server,
                 stream_key: createdStream.stream_key,
-                stream_reaction: `https://reactions.thurbe.xyz?id=${stream.value?.streamId!}`
+                stream_reaction: `https://reactions.thurbe.xyz?id=${stream.value?.streamAddress!}`
             }
         };
 
@@ -444,37 +417,18 @@ const startStream = async () => {
 };
 
 const init = async () => {
-    const cardId = await Contract.getCardId(
-        (stream.value?.streamer as Account).address as `0x${string}`,
-        false
-    );
+    // isFollow.value = cardBalance > 0;
+    // isSuperFollow.value = cardBalance > 0;
 
-    const exclusiveCardId = await Contract.getCardId(
-        (stream.value?.streamer as Account).address as `0x${string}`,
-        true
-    );
-
-    if (walletStore.address) {
-        // if (cardId) {
-        //     const cardBalance = await getNftBalance(cardId, walletStore.address);
-        //     isFollow.value = cardBalance > 0;
-        // }
-
-        // if (exclusiveCardId) {
-        //     const cardBalance = await getNftBalance(exclusiveCardId, walletStore.address);
-        //     isSuperFollow.value = cardBalance > 0;
-        // }
-    }
-
-    if (stream.value?.viewerType == ViewerType.Everyone) {
+    if (stream.value?.visibility == Visibility.Everyone) {
         payable.value = true;
     }
 
-    if (stream.value?.viewerType == ViewerType.Follower) {
+    if (stream.value?.visibility == Visibility.Follower) {
         payable.value = isFollow.value || isSuperFollow.value;
     }
 
-    if (stream.value?.viewerType == ViewerType.SuperFollower) {
+    if (stream.value?.visibility == Visibility.SuperFollower) {
         payable.value = isSuperFollow.value;
     }
 
@@ -513,10 +467,6 @@ const init = async () => {
     }
 
     loading.value = false;
-
-    if (exclusiveCardId) {
-        super_follow.value.amount = await Contract.getMintPrice(exclusiveCardId);
-    }
 };
 
 const closeConfigs = () => {
@@ -543,7 +493,7 @@ const stopStream = async () => {
     if (ending.value) return;
     ending.value = true;
 
-    await EnthroAPI.endStream(stream.value?.streamId!);
+    await EnthroAPI.endStream(stream.value?.streamAddress!);
 
     if (player) {
         player.pause();
@@ -560,7 +510,7 @@ const share = () => {
         navigator.share({
             title: stream.value?.name,
             text: stream.value?.description || '',
-            url: `https://thurbe.xyz/streams/${stream.value?.streamId!}`
+            url: `https://thurbe.xyz/streams/${stream.value?.streamAddress!}`
         });
     } catch (error) {
         notify.push({
@@ -583,7 +533,7 @@ onBeforeUnmount(() => {
     if (!isCreator() && payable.value) {
         EnthroAPI.joinStream(
             walletStore.address || 'undefined',
-            stream.value?.streamId!
+            stream.value?.streamAddress!
         );
     }
 });
@@ -615,7 +565,7 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
                 <div class="restricted"
-                    v-else-if="!isCreator() && stream.viewerType == ViewerType.SuperFollower && !isSuperFollow">
+                    v-else-if="!isCreator() && stream.visibility == Visibility.SuperFollower && !isSuperFollow">
                     <LockIcon />
                     <h3>Oops, Sorry You are Ineligible to View this Content</h3>
                     <p>This channel owner only set this content to be to be viewable by Super followers only, Click the
@@ -626,7 +576,7 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
                 <div class="restricted"
-                    v-else-if="!isCreator() && stream.viewerType == ViewerType.Follower && !(isFollow || isSuperFollow)">
+                    v-else-if="!isCreator() && stream.visibility == Visibility.Follower && !(isFollow || isSuperFollow)">
                     <LockIcon />
                     <h3>Oops, Sorry You are Ineligible to View this Content</h3>
                     <p>This channel owner only set this content to be to be viewable by followers only, Click the
@@ -859,9 +809,8 @@ onBeforeUnmount(() => {
 
         <SendTip :channel="(stream.streamer as Account).channel!" v-if="tip.open" @close="tip.open = false"
             @continue="setTip" />
-        <SuperFollow :loading="superFollowing" :channel="(stream.streamer as Account).channel!"
-            :amount="super_follow.amount" v-if="super_follow.open" @close="super_follow.open = false"
-            @continue="superFollow" />
+        <SuperFollow :loading="superFollowing" :channel="(stream.streamer as Account).channel!" v-if="super_follow.open"
+            @close="super_follow.open = false" @continue="superFollow" />
         <StreamConfigs v-if="streamConfigs.open" @close="closeConfigs" :configs="streamConfigs.data" />
     </div>
 </template>

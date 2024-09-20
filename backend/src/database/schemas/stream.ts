@@ -3,7 +3,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Account } from './account';
-import { ViewerType, StreamType } from 'src/types';
+import { Visibility, StreamType } from 'src/types';
 
 export type StreamDocument = HydratedDocument<Stream>;
 
@@ -13,7 +13,7 @@ export class Stream {
     _id: string;
 
     @Prop({ required: true, unique: true })
-    streamId: string;
+    streamAddress: string;
 
     @Prop({ required: true })
     name: string;
@@ -49,7 +49,7 @@ export class Stream {
     dislikes: string[];
 
     @Prop({ required: true })
-    viewerType: ViewerType;
+    visibility: Visibility;
 
     @Prop({ required: true })
     streamType: StreamType;

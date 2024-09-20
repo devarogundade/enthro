@@ -46,8 +46,8 @@ const follow = async () => {
 
     following.value = true;
 
-    const txHash = await Contract.mintCard(
-        props.channel.owner.address as `0x${string}`,
+    const txHash = await Contract.followStreamer(
+        props.channel.owner.address as string,
         walletStore.address,
         false,
         BigInt(0)
@@ -61,7 +61,7 @@ const follow = async () => {
         });
 
         await EnthroAPI.followAccount(
-            props.channel.owner.address as `0x${string}`,
+            props.channel.owner.address as string,
             walletStore.address
         );
 
@@ -84,8 +84,8 @@ const superFollow = async () => {
 
     superFollowing.value = true;
 
-    const txHash = await Contract.mintCard(
-        props.channel.owner.address as `0x${string}`,
+    const txHash = await Contract.followStreamer(
+        props.channel.owner.address as string,
         walletStore.address,
         true,
         // @ts-ignore
@@ -102,7 +102,7 @@ const superFollow = async () => {
         });
 
         await EnthroAPI.followAccount(
-            props.channel.owner.address as `0x${string}`,
+            props.channel.owner.address as string,
             walletStore.address
         );
 

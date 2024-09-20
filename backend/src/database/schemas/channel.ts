@@ -22,6 +22,9 @@ export class Channel {
     @Prop({ default: null })
     cover: string | null;
 
+    @Prop({ default: 0 })
+    s_follow_amount: number;
+
     @Prop({ required: true })
     created_at: Date;
 };

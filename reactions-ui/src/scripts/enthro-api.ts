@@ -7,10 +7,10 @@ const client = axios.create({
 
 const EnthroAPI = {
     async getStream(
-        streamId: string
+        streamAddress: string
     ): Promise<Stream | null> {
         try {
-            const response = await client.get(`/streams/${streamId}`);
+            const response = await client.get(`/streams/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);

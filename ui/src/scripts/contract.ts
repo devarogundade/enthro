@@ -1,29 +1,45 @@
-import { abi as thurbeAbi, cardAbi } from '../abis/thurbe';
-import type { Revenue } from '@/types';
+import { Visibility, type Revenue } from '../types';
+import { UserResponseStatus } from '@aptos-labs/wallet-standard';
+import { aptosConnectWallet } from './connect';
+import { AccountAddress, Aptos, APTOS_COIN, AptosConfig, createResourceAddress, Network } from '@aptos-labs/ts-sdk';
 
-export const thurbeId: `0x${string}` = '0xD21126168F885D179149679b7Cf3E78dC0C530A0';
-export const thurbeTokenId: `0x${string}` = '0xbC91a7FF276DCa355124E924E1994F1E11A53ec8';
+const enthroId: string = '0xb0373f9f60ec4e3ff6668985b48c5756368873c99a2b7cf12a150b20d59aab05';
+
+export const aptos = new Aptos(
+    new AptosConfig({ network: Network.TESTNET })
+);
 
 const Contract = {
     // === Streamer Functions ===
     async createStreamer(
-        cardBaseURI: string,
         name: string,
-        symbol: string,
-        mintPrice: string,
-        cardExlusiveBaseURI: string
-    ): Promise<`0x${string}` | null> {
+        about: string,
+        image: string,
+        cover: string,
+        sFollowAmount: string,
+        websiteURL: string
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'create',
-            //     args: [cardBaseURI, name, symbol, mintPrice, cardExlusiveBaseURI]
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::create_streamer`,
+                    functionArguments: [
+                        name,
+                        about,
+                        image,
+                        cover,
+                        `${name} followers`,
+                        `${name} super followers`,
+                        sFollowAmount,
+                        websiteURL
+                    ]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
-            // return receipt.transactionHash;
             return null;
         } catch (error) {
             console.log(error);
@@ -32,21 +48,32 @@ const Contract = {
     },
 
     async startStream(
-        streamId: `0x${string}`,
-        exclusive: boolean,
-        tips: boolean
-    ): Promise<`0x${string}` | null> {
+        title: string,
+        description: string,
+        visibility: Visibility,
+        tips: boolean,
+        thumbnail: string,
+        start_secs: string,
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'startStream',
-            //     args: [streamId, exclusive, tips]
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::start_stream`,
+                    functionArguments: [
+                        title,
+                        description,
+                        `Stream: ${title}`,
+                        visibility,
+                        tips,
+                        thumbnail,
+                        start_secs
+                    ]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
             return null;
         } catch (error) {
@@ -55,60 +82,31 @@ const Contract = {
         }
     },
 
-    async uploadVideo(videoId: `0x${string}`, exclusive: boolean, tips: boolean): Promise<`0x${string}` | null> {
+    async uploadVideo(
+        title: string,
+        description: string,
+        visibility: Visibility,
+        tips: boolean,
+        thumbnail: string,
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'uploadVideo',
-            //     args: [videoId, exclusive, tips]
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::upload_video`,
+                    functionArguments: [
+                        title,
+                        description,
+                        `Video: ${title}`,
+                        visibility,
+                        tips,
+                        thumbnail
+                    ]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
-
-            return null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async endStream(streamId: `0x${string}`): Promise<`0x${string}` | null> {
-        try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'endStream',
-            //     args: [streamId]
-            // });
-
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
-
-            return null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async pauseTip(
-        streamId: `0x${string}`
-    ): Promise<`0x${string}` | null> {
-        try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'pauseTip',
-            //     args: [streamId]
-            // });
-
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
             return null;
         } catch (error) {
@@ -119,20 +117,23 @@ const Contract = {
 
     // === Viewers Functions ===
     async tipStream(
-        streamId: `0x${string}`,
+        stream_address: string,
         amount: string
-    ): Promise<`0x${string}` | null> {
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'tipStream',
-            //     args: [streamId, BigInt(amount)],
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::tip_stream`,
+                    functionArguments: [
+                        stream_address,
+                        amount
+                    ]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
             return null;
         } catch (error) {
@@ -142,102 +143,50 @@ const Contract = {
     },
 
     async tipVideo(
-        videoId: `0x${string}`,
+        video_address: string,
         amount: string
-    ): Promise<`0x${string}` | null> {
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'tipVideo',
-            //     args: [videoId, BigInt(amount)],
-            // });
-
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
-
-            return null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async mintCard(
-        streamer: `0x${string}`,
-        to: `0x${string}`,
-        exclusive: boolean,
-        value: bigint
-    ): Promise<`0x${string}` | null> {
-        try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'mintCard',
-            //     args: [streamer, to, exclusive],
-            //     value
-            // });
-
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
-
-            return null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async getCardId(
-        streamer: `0x${string}`,
-        exclusive: boolean
-    ): Promise<`0x${string}` | null> {
-        try {
-            // return await readContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'getCardId',
-            //     args: [streamer, exclusive],
-            // }) as `0x${string}`;
-
-            return null;
-        } catch (error) {
-
-            console.log(error);
-            return null;
-        }
-    },
-
-    async getMintPrice(
-        cardId: `0x${string}`,
-    ): Promise<bigint> {
-        try {
-            // @ts-ignore
-            return await readContract(config, {
-                abi: cardAbi,
-                address: cardId,
-                functionName: 'getMintPrice'
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::tip_video`,
+                    functionArguments: [
+                        video_address,
+                        amount
+                    ]
+                }
             });
+
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
+
+            return null;
         } catch (error) {
             console.log(error);
-            return BigInt(0);
+            return null;
         }
     },
 
-    async claimTfuel(amount: bigint): Promise<`0x${string}` | null> {
+    async followStreamer(
+        streamer: string,
+        visibility: Visibility
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'claimTfuel',
-            //     args: [amount]
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::follow_streamer`,
+                    functionArguments: [
+                        streamer,
+                        visibility
+                    ],
+                    typeArguments: [APTOS_COIN]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
             return null;
         } catch (error) {
@@ -246,18 +195,23 @@ const Contract = {
         }
     },
 
-    async claimThurbe(amount: bigint): Promise<`0x${string}` | null> {
+    async claimEarnings(
+        amount: bigint
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'claimThurbe',
-            //     args: [amount]
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::claim_earnings`,
+                    functionArguments: [
+                        amount
+                    ],
+                    typeArguments: [APTOS_COIN]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
             return null;
         } catch (error) {
@@ -266,17 +220,24 @@ const Contract = {
         }
     },
 
-    async claimAll(): Promise<`0x${string}` | null> {
+    async claimStreamTips(
+        stream_address: string,
+        amount: bigint
+    ): Promise<string | null> {
         try {
-            // const result = await writeContract(config, {
-            //     abi: thurbeAbi,
-            //     address: thurbeId,
-            //     functionName: 'claimAll'
-            // });
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::claim_stream_tips`,
+                    functionArguments: [
+                        stream_address,
+                        amount
+                    ]
+                }
+            });
 
-            // const receipt = await waitForTransactionReceipt(config, { hash: result });
-
-            // return receipt.transactionHash;
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
 
             return null;
         } catch (error) {
@@ -285,61 +246,94 @@ const Contract = {
         }
     },
 
-    async getStreamer(
-        streamer: `0x${string}`,
+    async claimVideoTips(
+        video_address: string,
+        amount: bigint
+    ): Promise<string | null> {
+        try {
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::claim_video_tips`,
+                    functionArguments: [
+                        video_address,
+                        amount
+                    ]
+                }
+            });
+
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
+
+            return null;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    },
+
+    async getEarnings(
+        streamer: string
     ): Promise<Revenue | null> {
         try {
+            const response = (await aptos.view({
+                payload: {
+                    function: `${enthroId}::main::get_earnings`,
+                    functionArguments: [streamer]
+                },
+            }));
+
             // @ts-ignore
-            return await readContract(config, {
-                abi: thurbeAbi,
-                address: thurbeId,
-                functionName: 'getStreamer',
-                args: [streamer]
-            });
+            return { unclaimed: response[0], claimed: response[1] };
         } catch (error) {
             console.log(error);
             return null;
         }
     },
 
-    async getStream(
-        streamId: `0x${string}`,
-    ): Promise<any> {
+    async getStreamTips(
+        stream_address: string
+    ): Promise<Revenue | null> {
         try {
+            const response = (await aptos.view({
+                payload: {
+                    function: `${enthroId}::main::get_stream_tips`,
+                    functionArguments: [stream_address]
+                },
+            }));
+
             // @ts-ignore
-            return await readContract(config, {
-                abi: thurbeAbi,
-                address: thurbeId,
-                functionName: 'getStream',
-                args: [streamId]
-            });
+            return { unclaimed: response[0], claimed: response[1] };
         } catch (error) {
             console.log(error);
             return null;
         }
     },
 
-    async getVideo(
-        videoId: `0x${string}`,
-    ): Promise<any> {
+    async getVideoTips(
+        video_address: string
+    ): Promise<Revenue | null> {
         try {
+            const response = (await aptos.view({
+                payload: {
+                    function: `${enthroId}::main::get_video_tips`,
+                    functionArguments: [video_address]
+                },
+            }));
+
             // @ts-ignore
-            return await readContract(config, {
-                abi: thurbeAbi,
-                address: thurbeId,
-                functionName: 'getVideo',
-                args: [videoId]
-            });
+            return { unclaimed: response[0], claimed: response[1] };
         } catch (error) {
             console.log(error);
             return null;
         }
     },
 
-    newId(): `0x${string}` {
-        const array = new Uint8Array(32);
-        window.crypto.getRandomValues(array);
-        return `0x${Array.from(array).map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
+    getResourceAddress(
+        streamer: string,
+        seed: string
+    ): string {
+        return createResourceAddress(AccountAddress.from(streamer), seed).toString();
     }
 };
 

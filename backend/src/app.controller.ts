@@ -32,7 +32,8 @@ export class AppController {
       (dto.owner as string).toLocaleLowerCase(),
       dto.name,
       dto.image,
-      dto.cover
+      dto.cover,
+      dto.s_follow_amount
     );
   }
 
@@ -63,7 +64,7 @@ export class AppController {
     @Body() dto: Stream
   ): Promise<Stream | null> {
     return this.appService.createStream(
-      dto.streamId,
+      dto.streamAddress,
       (dto.streamer as string).toLocaleLowerCase(),
       dto.name,
       dto.description,
@@ -71,41 +72,41 @@ export class AppController {
       dto.stream_server,
       dto.stream_key,
       dto.thumbnail,
-      dto.viewerType,
+      dto.visibility,
       dto.streamType,
       dto.tips,
       dto.start_at,
     );
   }
 
-  @Post('/start-stream/:streamId')
+  @Post('/start-stream/:streamAddress')
   startStream(
-    @Param('streamId') streamId: string,
+    @Param('streamAddress') streamAddress: string,
     @Query('streamServer') streamServer: string,
     @Query('streamKey') streamKey: string
   ): Promise<boolean> {
     return this.appService.updateStream(
-      streamId, streamServer, streamKey
+      streamAddress, streamServer, streamKey
     );
   }
 
-  @Post('/end-stream/:streamId')
+  @Post('/end-stream/:streamAddress')
   endStream(
-    @Param('streamId') streamId: string
+    @Param('streamAddress') streamAddress: string
   ): Promise<boolean> {
     return this.appService.endStream(
-      streamId
+      streamAddress
     );
   }
 
-  @Post('/join-stream/:viewer/:streamId')
+  @Post('/join-stream/:viewer/:streamAddress')
   joinStream(
     @Param('viewer') viewer: string,
-    @Param('streamId') streamId: string
+    @Param('streamAddress') streamAddress: string
   ): Promise<boolean> {
     return this.appService.joinStream(
       viewer.toLocaleLowerCase(),
-      streamId,
+      streamAddress,
     );
   }
 
@@ -114,69 +115,69 @@ export class AppController {
     @Body() dto: Video
   ): Promise<Video | null> {
     return this.appService.uploadVideo(
-      dto.videoId,
+      dto.videoAddress,
       (dto.streamer as string).toLocaleLowerCase(),
       dto.name,
       dto.description,
       dto.thumbnail,
-      dto.viewerType,
+      dto.visibility,
       dto.thetaId,
       dto.tips
     );
   }
 
-  @Post('/watch-video/:viewer/:videoId')
+  @Post('/watch-video/:viewer/:videoAddress')
   watchVideo(
     @Param('viewer') viewer: string,
-    @Param('videoId') videoId: string
+    @Param('videoAddress') videoAddress: string
   ): Promise<boolean> {
     return this.appService.watchVideo(
       viewer.toLocaleLowerCase(),
-      videoId,
+      videoAddress,
     );
   }
 
-  @Post('/like-stream/:viewer/:streamId')
+  @Post('/like-stream/:viewer/:streamAddress')
   likeStream(
     @Param('viewer') viewer: string,
-    @Param('streamId') streamId: string
+    @Param('streamAddress') streamAddress: string
   ): Promise<boolean> {
     return this.appService.likeStream(
       viewer.toLocaleLowerCase(),
-      streamId,
+      streamAddress,
     );
   }
 
-  @Post('/like-video/:viewer/:videoId')
+  @Post('/like-video/:viewer/:videoAddress')
   likeVideo(
     @Param('viewer') viewer: string,
-    @Param('videoId') videoId: string
+    @Param('videoAddress') videoAddress: string
   ): Promise<boolean> {
     return this.appService.likeVideo(
       viewer.toLocaleLowerCase(),
-      videoId,
+      videoAddress,
     );
   }
 
-  @Post('/dislike-stream/:viewer/:streamId')
+  @Post('/dislike-stream/:viewer/:streamAddress')
   dislikeStream(
     @Param('viewer') viewer: string,
-    @Param('streamId') streamId: string
+    @Param('streamAddress') streamAddress: string
   ): Promise<boolean> {
     return this.appService.dislikeStream(
       viewer.toLocaleLowerCase(),
-      streamId,
+      streamAddress,
     );
   }
 
-  @Post('/dislike-video/:viewer/:videoId')
+  @Post('/dislike-video/:viewer/:videoAddress')
   dislikeVideo(
     @Param('viewer') viewer: string,
-    @Param('videoId') videoId: string
+    @Param('videoAddress') videoAddress: string
   ): Promise<boolean> {
     return this.appService.dislikeVideo(
       viewer.toLocaleLowerCase(),
-      videoId,
+      videoAddress,
     );
   }
 
@@ -193,10 +194,10 @@ export class AppController {
 
   @Get('/streams/:id')
   getStream(
-    @Param('id') streamId: string,
+    @Param('id') streamAddress: string,
   ): Promise<Stream | null> {
     return this.appService.getStream(
-      streamId
+      streamAddress
     );
   }
 
@@ -213,10 +214,10 @@ export class AppController {
 
   @Get('/videos/:id')
   getVideo(
-    @Param('id') videoId: string,
+    @Param('id') videoAddress: string,
   ): Promise<Video | null> {
     return this.appService.getVideo(
-      videoId
+      videoAddress
     );
   }
 

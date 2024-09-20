@@ -5,20 +5,6 @@ import SideBar from '@/components/SideBar.vue';
 import { onMounted } from 'vue';
 import { useWalletStore } from '@/stores/wallet';
 import { useRouter } from 'vue-router';
-
-const walletStore = useWalletStore();
-
-const router = useRouter();
-
-onMounted(() => {
-    // watchAccount(config, {
-    //     onChange(account) {
-    //         if (account.status == 'disconnected') {
-    //             router.push('/signin');
-    //         }
-    //     },
-    // });
-});
 </script>
 
 <template>

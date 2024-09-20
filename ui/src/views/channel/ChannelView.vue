@@ -27,12 +27,12 @@ const getChannel = async () => {
 
 const getFollows = async () => {
     const cardId = await Contract.getCardId(
-        (route.params.id as any) as `0x${string}`,
+        (route.params.id as any) as string,
         false
     );
 
     const exclusiveCardId = await Contract.getCardId(
-        (route.params.id as any) as `0x${string}`,
+        (route.params.id as any) as string,
         true
     );
 

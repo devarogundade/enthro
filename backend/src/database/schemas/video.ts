@@ -3,7 +3,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Account } from './account';
-import { ViewerType } from 'src/types';
+import { Visibility } from 'src/types';
 
 export type VideoDocument = HydratedDocument<Video>;
 
@@ -13,7 +13,7 @@ export class Video {
     _id: string;
 
     @Prop({ required: true, unique: true })
-    videoId: string;
+    videoAddress: string;
 
     @Prop({ required: true })
     name: string;
@@ -46,7 +46,7 @@ export class Video {
     dislikes: string[];
 
     @Prop({ required: true })
-    viewerType: ViewerType;
+    visibility: Visibility;
 
     @Prop({ required: true })
     created_at: Date;

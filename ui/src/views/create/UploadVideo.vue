@@ -12,7 +12,7 @@ import CalendarIcon from '@/components/icons/CalendarIcon.vue';
 import RadioToggleIcon from '@/components/icons/RadioToggleIcon.vue';
 import TickSquareIcon from '@/components/icons/TickSquareIcon.vue';
 import { ref } from 'vue';
-import { ViewerType, type VideoForm } from '@/types';
+import { Visibility, type VideoForm } from '@/types';
 import { notify } from '@/reactives/notify';
 import Contract from '@/scripts/contract';
 import ThetaAPI from '@/scripts/theta-api';
@@ -32,7 +32,7 @@ const video = ref<VideoForm>({
     thumbnail: undefined,
     thumbnail_file_url: undefined,
     file_url: undefined,
-    viewerType: ViewerType.Follower,
+    visibility: Visibility.Follower,
     tips: false
 });
 
@@ -70,11 +70,11 @@ const selectVideo = (event: any) => {
     }
 };
 
-const switchViewers = (viewerType: ViewerType) => {
-    if (video.value.viewerType == viewerType && viewerType == ViewerType.Everyone) {
-        video.value.viewerType = ViewerType.Follower;
+const switchViewers = (visibility: Visibility) => {
+    if (video.value.visibility == visibility && visibility == Visibility.Everyone) {
+        video.value.visibility = Visibility.Follower;
     } else {
-        video.value.viewerType = viewerType;
+        video.value.visibility = visibility;
     }
 };
 
@@ -119,12 +119,18 @@ const uploadVideo = async () => {
 
     uploading.value = true;
 
-    const videoId = Contract.newId();
+    const videoAddress = Contract.getResourceAddress(
+        walletStore.address, `Video_${video.value.name}`
+    );
+
+    const thumbnailUrl = await Storage.awaitUpload(video.value.thumbnail, videoAddress);
 
     const txHash = await Contract.uploadVideo(
-        videoId,
-        video.value.viewerType == ViewerType.SuperFollower,
-        video.value.tips
+        video.value.name,
+        video.value.description || '',
+        video.value.visibility,
+        video.value.tips,
+        thumbnailUrl
     );
 
     if (!txHash) {
@@ -152,45 +158,36 @@ const uploadVideo = async () => {
         return;
     }
 
-    Storage.upload(video.value.thumbnail, videoId, async (thumbnailUrl: string) => {
-        const upload = await EnthroAPI.uploadVideo(
-            videoId,
-            walletStore.address!,
-            video.value.name!,
-            video.value.description,
-            thumbnailUrl,
-            video.value.viewerType,
-            // @ts-ignore
-            videoResponse.id,
-            video.value.tips
-        );
+    const upload = await EnthroAPI.uploadVideo(
+        videoAddress,
+        walletStore.address!,
+        video.value.name!,
+        video.value.description,
+        thumbnailUrl,
+        video.value.visibility,
+        // @ts-ignore
+        videoResponse.id,
+        video.value.tips
+    );
 
-        if (!upload) {
-            notify.push({
-                title: 'Error: Uploading video file',
-                description: 'Please try again',
-                category: 'error'
-            });
-            uploading.value = false;
-            return;
-        }
-
-        notify.push({
-            title: 'Successful: Video file uploaded',
-            description: 'Your channel has been updated successfully',
-            category: 'success'
-        });
-        uploading.value = false;
-
-        router.push('/portfolio');
-    }, () => {
+    if (!upload) {
         notify.push({
             title: 'Error: Uploading video file',
             description: 'Please try again',
             category: 'error'
         });
         uploading.value = false;
+        return;
+    }
+
+    notify.push({
+        title: 'Successful: Video file uploaded',
+        description: 'Your channel has been updated successfully',
+        category: 'success'
     });
+    uploading.value = false;
+
+    router.push('/portfolio');
 };
 </script>
 
@@ -278,16 +275,16 @@ const uploadVideo = async () => {
 
                         <div class="public_check">
                             <p>Everyone Instead</p>
-                            <div class="checkbox" @click="switchViewers(ViewerType.Everyone)">
-                                <TickSquareIcon :active="video.viewerType == ViewerType.Everyone" />
+                            <div class="checkbox" @click="switchViewers(Visibility.Everyone)">
+                                <TickSquareIcon :active="video.visibility == Visibility.Everyone" />
                             </div>
                         </div>
                     </div>
 
                     <div class="viewers">
-                        <div class="viewer" @click="switchViewers(ViewerType.Follower)">
+                        <div class="viewer" @click="switchViewers(Visibility.Follower)">
                             <div class="radio">
-                                <RadioToggleIcon :active="video.viewerType == ViewerType.Follower" />
+                                <RadioToggleIcon :active="video.visibility == Visibility.Follower" />
                             </div>
                             <div class="viewer_title">
                                 <UserFullIcon />
@@ -298,9 +295,9 @@ const uploadVideo = async () => {
                             </p>
                         </div>
 
-                        <div class="viewer" @click="switchViewers(ViewerType.SuperFollower)">
+                        <div class="viewer" @click="switchViewers(Visibility.SuperFollower)">
                             <div class="radio">
-                                <RadioToggleIcon :active="video.viewerType == ViewerType.SuperFollower" />
+                                <RadioToggleIcon :active="video.visibility == Visibility.SuperFollower" />
                             </div>
                             <div class="viewer_title">
                                 <FlashIcon />

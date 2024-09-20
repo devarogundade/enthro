@@ -5,7 +5,7 @@ module enthro::main {
     use std::signer;
     use std::string::{Self, String};
     use std::vector;
-    use aptos_framework::account;
+    use aptos_framework::account::{Self, SignerCapability};
     use aptos_framework::coin::{Self, CoinStore};
     use aptos_framework::fungible_asset::{Self, Metadata};
     use aptos_framework::object::{Self, Object};
@@ -39,8 +39,6 @@ module enthro::main {
         owner: address,
         tips: bool,
         creator: address,
-        reactions: Table<address, bool>,
-        reactions_count: u64,
         media_key: MediaKey
     }
 
@@ -55,8 +53,6 @@ module enthro::main {
         owner: address,
         tips: bool,
         creator: address,
-        reactions: Table<address, bool>,
-        reactions_count: u64,
         media_key: MediaKey
     }
 
@@ -67,10 +63,6 @@ module enthro::main {
         unclaimed_apt: u64,
         claimed_apt: u64,
         channel: Channel
-    }
-
-    struct Registry has key {
-        admin_address: Option<address>,
     }
 
     struct Channel has copy, drop, store {
@@ -87,13 +79,17 @@ module enthro::main {
 
     struct EnthroState has key {
         admin_address: Option<address>,
-        enthro_coin: Option<Object<Metadata>>
+        enthro_coin: Option<Object<Metadata>>,       
+        signer_cap: SignerCapability
     }
 
     fun init_module(enthro: &signer) {
+        
+        let (res_signer, res_signer_cap) = account::create_resource_account(enthro, b"Enthro");
+
         // create enthro collection
         tokens::create_collection(
-            enthro, 
+            &res_signer, 
             string::utf8(b"Enthro Collection"), 
             string::utf8(b"Enthro"), 
             string::utf8(b"https://enthro.xyz")
@@ -101,13 +97,14 @@ module enthro::main {
 
         let state = EnthroState {
             admin_address: option::none(),
-            enthro_coin: option::none()
+            enthro_coin: option::none(),
+            signer_cap: res_signer_cap
         };
 
         move_to(enthro, state);
     }
 
-    fun init_state<AptosCoin>(admin: &signer, enthro_coin: Object<Metadata>) acquires EnthroState {
+    public entry fun init_state<AptosCoin>(admin: &signer, enthro_coin: Object<Metadata>) acquires EnthroState {
         let admin_address = signer::address_of(admin);
 
         let state = borrow_global_mut<EnthroState>(@enthro);
@@ -127,12 +124,15 @@ module enthro::main {
         s_followers_collection: String,
         s_follow_amount: u64,
         website_uri: String
-    ) {
+    ) acquires EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         // create followers collection
-        tokens::create_collection(sender, about, followers_collection, website_uri);
+        tokens::create_collection(res_signer, about, followers_collection, website_uri);
 
         // create super followers collection
-        tokens::create_collection(sender, about, s_followers_collection, website_uri);
+        tokens::create_collection(res_signer, about, s_followers_collection, website_uri);
 
         let channel = Channel {
             name,
@@ -154,6 +154,7 @@ module enthro::main {
     }
 
     public entry fun start_stream(
+        sender: &signer,
         title: String,
         description: String,
         token_uri: String,
@@ -161,8 +162,10 @@ module enthro::main {
         tips: bool,
         thumbnail: String,
         start_secs: u64,
-        sender: &signer,
-    ) acquires Streamer {
+    ) acquires Streamer, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let streamer = borrow_global<Streamer>(sender_address);
@@ -172,12 +175,12 @@ module enthro::main {
         let (stream_signer,_) = account::create_resource_account(sender, seed);
 
         let stream_address = signer::address_of(&stream_signer);
-        assert!(exists<Stream>(stream_address), error::invalid_argument(E_ALREADY_EXISTS));
+        assert!(!exists<Stream>(stream_address), error::invalid_argument(E_ALREADY_EXISTS));
 
         let collection = string::utf8(b"Enthro Collection");
 
         let token_id = tokens::create_token(
-            sender, 
+            res_signer, 
             collection, 
             description, 
             title, 
@@ -203,8 +206,6 @@ module enthro::main {
             owner: stream_address,
             tips,
             creator: sender_address,
-            reactions: table::new(),
-            reactions_count: 0,
             media_key
         };
 
@@ -218,14 +219,17 @@ module enthro::main {
     }
 
     public entry fun upload_video(
+        sender: &signer,
         title: String,
         description: String,
-        thumbnail: String,
         token_uri: String,
         visibility: u64,
         tips: bool,
-        sender: &signer,
-    ) acquires Streamer {
+        thumbnail: String,
+    ) acquires Streamer, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let streamer = borrow_global<Streamer>(sender_address);
@@ -235,7 +239,7 @@ module enthro::main {
         let (video_signer,_) = account::create_resource_account(sender, seed);
 
         let video_address = signer::address_of(&video_signer);
-        assert!(exists<Video>(video_address), error::invalid_argument(E_ALREADY_EXISTS));
+        assert!(!exists<Video>(video_address), error::invalid_argument(E_ALREADY_EXISTS));
 
         let collection = if (visibility == VISIBILITY_S_FOLLOWERS) {
             streamer.s_followers_collection
@@ -244,7 +248,7 @@ module enthro::main {
         };
 
         let token_id = tokens::create_token(
-            sender, 
+            res_signer, 
             collection,
             description,
             title,
@@ -268,8 +272,6 @@ module enthro::main {
             owner: sender_address,
             tips,
             creator: sender_address,
-            reactions: table::new(),
-            reactions_count: 0,
             media_key
         };
 
@@ -286,20 +288,21 @@ module enthro::main {
         sender: &signer,
         streamer_address: address,
         visibility: u64
-    ) acquires Streamer {
+    ) acquires Streamer, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let streamer = borrow_global_mut<Streamer>(streamer_address);
 
         let collection = if (visibility == VISIBILITY_S_FOLLOWERS) {
-            // let coin_store = borrow_global<CoinStore<AptosCoin>>(@enthro);
-
             // tranfer apt to contract
-            // coin::transfer<AptosCoin>(
-            //     sender_address,
-            //     coin_store,
-            //     streamer.s_follow_amount
-            // );
+            coin::transfer<AptosCoin>(
+                sender,
+                signer::address_of(res_signer),
+                streamer.s_follow_amount
+            );
 
             streamer.unclaimed_apt = streamer.unclaimed_apt + streamer.s_follow_amount;
 
@@ -369,13 +372,16 @@ module enthro::main {
         sender: &signer,
         stream_address: address,
         receiver: address
-    ) acquires Stream {
+    ) acquires Stream, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let stream = borrow_global_mut<Stream>(stream_address);
 
         let token_obj = tokens::get_token_obj(
-            @enthro,
+            signer::address_of(res_signer),
             stream.media_key.collection,
             stream.media_key.token
         );
@@ -393,13 +399,16 @@ module enthro::main {
         sender: &signer,
         video_address: address,
         receiver: address
-    ) acquires Video {
+    ) acquires Video, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
         
         let video = borrow_global_mut<Video>(video_address);
 
         let token_obj = tokens::get_token_obj(
-            @enthro,
+            signer::address_of(res_signer),
             video.media_key.collection,
             video.media_key.token
         );
@@ -416,20 +425,21 @@ module enthro::main {
     public entry fun claim_earnings<AptosCoin>(
         sender: &signer,
         amount: u64
-    ) acquires Streamer  {
+    ) acquires Streamer, EnthroState  {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let streamer = borrow_global_mut<Streamer>(sender_address);
 
         assert!(streamer.unclaimed_apt >= amount, error::invalid_argument(E_NOT_ENOUGH));
 
-        // let coin_store = borrow_global<CoinStore<AptosCoin>>(@enthro);
-
-        // coin::transfer<AptosCoin>(
-        //     coin_store,
-        //     sender_address,
-        //     amount
-        // );
+        coin::transfer<AptosCoin>(
+            res_signer,
+            sender_address,
+            amount
+        );
 
         streamer.unclaimed_apt = streamer.unclaimed_apt - amount;
         streamer.claimed_apt = streamer.claimed_apt + amount;
@@ -439,7 +449,10 @@ module enthro::main {
         sender: &signer,
         stream_address: address,
         amount: u64
-    ) acquires Stream {
+    ) acquires Stream, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let stream = borrow_global_mut<Stream>(stream_address);
@@ -447,7 +460,7 @@ module enthro::main {
         assert!(stream.unclaimed_tipped_amount <= amount, error::invalid_argument(E_NOT_ENOUGH));
 
         let token_obj = tokens::get_token_obj(
-            @enthro,
+            signer::address_of(res_signer),
             stream.media_key.collection,
             stream.media_key.token
         );
@@ -469,7 +482,10 @@ module enthro::main {
         sender: &signer,
         video_address: address,
         amount: u64
-    ) acquires Video {
+    ) acquires Video, EnthroState {
+        let state = borrow_global<EnthroState>(@enthro);
+        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+
         let sender_address = signer::address_of(sender);
 
         let video = borrow_global_mut<Video>(video_address);
@@ -477,7 +493,7 @@ module enthro::main {
         assert!(video.unclaimed_tipped_amount <= amount, error::invalid_argument(E_NOT_ENOUGH));
 
         let token_obj = tokens::get_token_obj(
-            @enthro,
+            signer::address_of(res_signer),
             video.media_key.collection,
             video.media_key.token
         );
@@ -495,39 +511,27 @@ module enthro::main {
         );
     }
 
-    public entry fun react_to_stream(
-        sender: &signer,
-        stream_address: address,
-        reaction: bool
-    ) acquires Stream {
-        let sender_address = signer::address_of(sender);
-
-        let stream = borrow_global_mut<Stream>(stream_address);
-
-        if (table::contains(&stream.reactions, sender_address)) {
-            table::upsert(&mut stream.reactions, sender_address, reaction);
-        } else {
-            table::add(&mut stream.reactions, sender_address, reaction);
-        };
-        
-        stream.reactions_count = stream.reactions_count + 1;
+    #[view]
+    public fun get_earnings(
+        streamer_address: address
+    ): (u64, u64) acquires Streamer {
+        let streamer = borrow_global<Streamer>(streamer_address);
+        (streamer.unclaimed_apt, streamer.claimed_apt)
     }
 
-    public entry fun react_to_video(
-        sender: &signer,
-        video_address: address,
-        reaction: bool
-    ) acquires Video {
-        let sender_address = signer::address_of(sender);
-
-        let video = borrow_global_mut<Video>(video_address);
-        
-        if (table::contains(&video.reactions, sender_address)) {
-            table::upsert(&mut video.reactions, sender_address, reaction);
-        } else {
-            table::add(&mut video.reactions, sender_address, reaction);
-        };
-
-        video.reactions_count = video.reactions_count + 1;
+    #[view]
+    public fun get_stream_tips(
+        stream_address: address
+    ): (u64, u64) acquires Stream {
+        let stream = borrow_global<Stream>(stream_address);
+        (stream.unclaimed_tipped_amount, stream.claimed_tipped_amount)
+    }
+    
+    #[view]
+    public fun get_video_tips(
+        video_address: address
+    ): (u64, u64) acquires Video {
+        let video = borrow_global<Video>(video_address);
+        (video.unclaimed_tipped_amount, video.claimed_tipped_amount)
     }
 }

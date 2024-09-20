@@ -6,7 +6,7 @@ import { JobsOptions, Queue } from 'bullmq';
 import { Injectable } from '@nestjs/common';
 import { Account } from './database/schemas/account';
 import { Stream } from './database/schemas/stream';
-import { Paged, StreamType, ViewerType } from './types';
+import { Paged, StreamType, Visibility } from './types';
 import { Video } from './database/schemas/video';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Channel } from './database/schemas/channel';
@@ -58,7 +58,8 @@ export class AppService {
     owner: string,
     name: string,
     image: string,
-    cover: string | null
+    cover: string | null,
+    s_follow_amount: number
   ): Promise<Channel | null> {
     try {
       const exists = await this.channelModel.exists({ owner });
@@ -70,6 +71,7 @@ export class AppService {
         name,
         image,
         cover,
+        s_follow_amount,
         created_at: new Date()
       };
 
@@ -130,7 +132,7 @@ export class AppService {
   }
 
   async createStream(
-    streamId: string,
+    streamAddress: string,
     address: string,
     name: string,
     description: string | null,
@@ -138,18 +140,18 @@ export class AppService {
     stream_server: string | null,
     stream_key: string | null,
     thumbnail: string,
-    viewerType: ViewerType,
+    visibility: Visibility,
     streamType: StreamType,
     tips: boolean,
     start_at: Date
   ): Promise<Stream | null> {
     try {
-      const exists = await this.streamModel.exists({ streamId });
+      const exists = await this.streamModel.exists({ streamAddress });
       if (exists) return null;
 
       const stream: Stream = {
-        _id: streamId,
-        streamId,
+        _id: streamAddress,
+        streamAddress,
         name,
         description,
         thumbnail,
@@ -158,7 +160,7 @@ export class AppService {
         stream_server,
         stream_key,
         tips,
-        viewerType,
+        visibility,
         created_at: new Date(),
         start_at,
         viewers: [],
@@ -173,7 +175,7 @@ export class AppService {
         removeOnFail: true
       };
 
-      this.queue.add(streamId, { streamId, started: false },
+      this.queue.add(streamAddress, { streamAddress, started: false },
         jobOptions
       );
 
@@ -181,7 +183,7 @@ export class AppService {
         { address },
         {
           $addToSet: {
-            streams: streamId
+            streams: streamAddress
           },
         }
       );
@@ -195,12 +197,12 @@ export class AppService {
 
   async joinStream(
     viewer: string,
-    streamId: string
+    streamAddress: string
   ): Promise<boolean> {
     try {
       if (viewer != 'undefined') {
         await this.streamModel.updateOne({
-          streamId, live: true
+          streamAddress, live: true
         }, {
           $addToSet: {
             viewers: viewer
@@ -217,11 +219,11 @@ export class AppService {
 
   async likeStream(
     viewer: string,
-    streamId: string
+    streamAddress: string
   ): Promise<boolean> {
     try {
       await this.streamModel.updateOne({
-        streamId, live: true
+        streamAddress, live: true
       }, {
         $addToSet: {
           likes: viewer
@@ -240,11 +242,11 @@ export class AppService {
 
   async likeVideo(
     viewer: string,
-    videoId: string
+    videoAddress: string
   ): Promise<boolean> {
     try {
       await this.videoModel.updateOne({
-        videoId
+        videoAddress
       }, {
         $addToSet: {
           likes: viewer
@@ -263,11 +265,11 @@ export class AppService {
 
   async dislikeStream(
     viewer: string,
-    streamId: string
+    streamAddress: string
   ): Promise<boolean> {
     try {
       await this.streamModel.updateOne({
-        streamId, live: true
+        streamAddress, live: true
       }, {
         $addToSet: {
           dislikes: viewer
@@ -286,11 +288,11 @@ export class AppService {
 
   async dislikeVideo(
     viewer: string,
-    videoId: string
+    videoAddress: string
   ): Promise<boolean> {
     try {
       await this.videoModel.updateOne({
-        videoId
+        videoAddress
       }, {
         $addToSet: {
           dislikes: viewer
@@ -308,29 +310,29 @@ export class AppService {
   }
 
   async uploadVideo(
-    videoId: string,
+    videoAddress: string,
     address: string,
     name: string,
     description: string | null,
     thumbnail: string,
-    viewerType: ViewerType,
+    visibility: Visibility,
     thetaId: string | null,
     tips: boolean,
   ): Promise<Video | null> {
     try {
-      const exists = await this.videoModel.exists({ videoId });
+      const exists = await this.videoModel.exists({ videoAddress });
       if (exists) return null;
 
       const video: Video = {
-        _id: videoId,
-        videoId,
+        _id: videoAddress,
+        videoAddress,
         name,
         description,
         thumbnail,
         streamer: address,
         thetaId,
         tips,
-        viewerType,
+        visibility,
         created_at: new Date(),
         viewers: [],
         views: 0,
@@ -342,7 +344,7 @@ export class AppService {
         { address },
         {
           $addToSet: {
-            videos: videoId
+            videos: videoAddress
           },
         }
       );
@@ -356,12 +358,12 @@ export class AppService {
 
   async watchVideo(
     viewer: string,
-    videoId: string
+    videoAddress: string
   ): Promise<boolean> {
     try {
       if (viewer == 'undefined') {
         await this.videoModel.updateOne({
-          videoId
+          videoAddress
         }, {
           $inc: {
             views: 1
@@ -369,7 +371,7 @@ export class AppService {
         });
       } else {
         await this.videoModel.updateOne({
-          videoId
+          videoAddress
         }, {
           $addToSet: {
             viewers: viewer
@@ -418,10 +420,10 @@ export class AppService {
   }
 
   async getStream(
-    streamId: string
+    streamAddress: string
   ): Promise<Stream | null> {
     try {
-      return this.streamModel.findOne({ streamId })
+      return this.streamModel.findOne({ streamAddress })
         .populate({
           path: 'streamer',
           populate: {
@@ -436,13 +438,13 @@ export class AppService {
   }
 
   async updateStream(
-    streamId: string,
+    streamAddress: string,
     streamServer: string,
     streamKey: string
   ): Promise<boolean> {
     try {
       this.streamModel.updateOne(
-        { streamId, live: false },
+        { streamAddress, live: false },
         {
           $set: {
             stream_server: streamServer,
@@ -457,7 +459,7 @@ export class AppService {
         removeOnFail: true
       };
 
-      this.queue.add(streamId, { streamId, started: true },
+      this.queue.add(streamAddress, { streamAddress, started: true },
         jobOptions
       );
 
@@ -469,11 +471,11 @@ export class AppService {
   }
 
   async endStream(
-    streamId: string,
+    streamAddress: string,
   ): Promise<boolean> {
     try {
       this.streamModel.updateOne(
-        { streamId, live: true },
+        { streamAddress, live: true },
         {
           $set: {
             stream_server: null,
@@ -521,10 +523,10 @@ export class AppService {
   }
 
   async getVideo(
-    videoId: string
+    videoAddress: string
   ): Promise<Video | null> {
     try {
-      return this.videoModel.findOne({ videoId })
+      return this.videoModel.findOne({ videoAddress })
         .populate({
           path: 'streamer',
           populate: {

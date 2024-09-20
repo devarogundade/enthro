@@ -23,22 +23,22 @@ const Converter = {
         }
     },
 
-    fromWei: function (wei: any) {
+    fromOctas: function (apt: any) {
         try {
-            if (wei == '' || wei == '0') return '0';
-            return convert(wei, 'wei', 'ether');
+            if (apt == '' || apt == '0') return '0';
+            return convert(apt, 'apt', 'octas');
         } catch (error) {
-            console.error('ether', error);
+            console.error('octas', error);
             return '0';
         }
     },
 
-    toWei: function (ether: any) {
+    toOctas: function (octas: any) {
         try {
-            if (ether == '') return '0';
-            return convert(ether, 'ether', 'wei');
+            if (octas == '') return '0';
+            return convert(octas, 'octas', 'apt');
         } catch (error) {
-            console.error('wei', error);
+            console.error('apt', error);
             return '0';
         }
     },

@@ -1,4 +1,4 @@
-import type { Account, Channel, Paged, Stream, StreamType, Video, ViewerType } from '@/types';
+import type { Account, Channel, Paged, Stream, StreamType, Video, Visibility } from '@/types';
 import axios from 'axios';
 
 const client = axios.create({
@@ -74,25 +74,25 @@ const EnthroAPI = {
     },
 
     async createStream(
-        streamId: string,
+        streamAddress: string,
         address: string,
         name: string,
         description: string | null,
         thetaId: string | null,
         thumbnail: string,
-        viewerType: ViewerType,
+        visibility: Visibility,
         streamType: StreamType,
         tips: boolean,
         start_at: Date
     ): Promise<Stream | null> {
         try {
             const stream: Stream = {
-                streamId,
+                streamAddress,
                 streamer: address,
                 name, description,
                 thumbnail,
                 thetaId,
-                viewerType,
+                visibility,
                 tips,
                 start_at,
                 stream_server: null,
@@ -113,9 +113,9 @@ const EnthroAPI = {
         }
     },
 
-    async endStream(streamId: string): Promise<boolean> {
+    async endStream(streamAddress: string): Promise<boolean> {
         try {
-            const response = await client.post(`/end-stream/${streamId}`);
+            const response = await client.post(`/end-stream/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -125,10 +125,10 @@ const EnthroAPI = {
 
     async joinStream(
         viewer: string,
-        streamId: string
+        streamAddress: string
     ): Promise<boolean> {
         try {
-            const response = await client.post(`/join-stream/${viewer}/${streamId}`);
+            const response = await client.post(`/join-stream/${viewer}/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -138,10 +138,10 @@ const EnthroAPI = {
 
     async likeStream(
         viewer: string,
-        streamId: string
+        streamAddress: string
     ): Promise<boolean> {
         try {
-            const response = await client.post(`/like-stream/${viewer}/${streamId}`);
+            const response = await client.post(`/like-stream/${viewer}/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -151,10 +151,10 @@ const EnthroAPI = {
 
     async likeVideo(
         viewer: string,
-        videoId: string
+        videoAddress: string
     ): Promise<boolean> {
         try {
-            const response = await client.post(`/like-video/${viewer}/${videoId}`);
+            const response = await client.post(`/like-video/${viewer}/${videoAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -164,10 +164,10 @@ const EnthroAPI = {
 
     async dislikeStream(
         viewer: string,
-        streamId: string
+        streamAddress: string
     ): Promise<boolean> {
         try {
-            const response = await client.post(`/dislike-stream/${viewer}/${streamId}`);
+            const response = await client.post(`/dislike-stream/${viewer}/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -177,10 +177,10 @@ const EnthroAPI = {
 
     async dislikeVideo(
         viewer: string,
-        videoId: string
+        videoAddress: string
     ): Promise<boolean> {
         try {
-            const response = await client.post(`/dislike-video/${viewer}/${videoId}`);
+            const response = await client.post(`/dislike-video/${viewer}/${videoAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -189,23 +189,23 @@ const EnthroAPI = {
     },
 
     async uploadVideo(
-        videoId: string,
+        videoAddress: string,
         address: string,
         name: string,
         description: string | null,
         thumbnail: string,
-        viewerType: ViewerType,
+        visibility: Visibility,
         thetaId: string | null,
         tips: boolean,
     ): Promise<Video | null> {
         try {
             const payload: Video = {
-                videoId,
+                videoAddress,
                 streamer: address,
                 name,
                 description,
                 thumbnail,
-                viewerType,
+                visibility,
                 thetaId,
                 tips,
                 viewers: [],
@@ -226,10 +226,10 @@ const EnthroAPI = {
 
     async watchVideo(
         viewer: string,
-        videoId: string
+        videoAddress: string
     ): Promise<boolean> {
         try {
-            const response = await client.post(`/watch-video/${viewer}/${videoId}`);
+            const response = await client.post(`/watch-video/${viewer}/${videoAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -251,10 +251,10 @@ const EnthroAPI = {
     },
 
     async getStream(
-        streamId: string
+        streamAddress: string
     ): Promise<Stream | null> {
         try {
-            const response = await client.get(`/streams/${streamId}`);
+            const response = await client.get(`/streams/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -262,9 +262,9 @@ const EnthroAPI = {
         }
     },
 
-    async startStream(streamId: string, streamServer: string, streamKey: string): Promise<boolean> {
+    async startStream(streamAddress: string, streamServer: string, streamKey: string): Promise<boolean> {
         try {
-            const response = await client.post(`/start-stream/${streamId}?streamServer=${streamServer}&streamKey=${streamKey}`);
+            const response = await client.post(`/start-stream/${streamAddress}?streamServer=${streamServer}&streamKey=${streamKey}`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -286,10 +286,10 @@ const EnthroAPI = {
     },
 
     async getVideo(
-        streamId: string
+        streamAddress: string
     ): Promise<Video | null> {
         try {
-            const response = await client.get(`/videos/${streamId}`);
+            const response = await client.get(`/videos/${streamAddress}`);
             return response.data;
         } catch (error) {
             console.error(error);

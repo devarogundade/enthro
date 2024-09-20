@@ -15,7 +15,6 @@ const videos = ref<Video[]>([]);
 const getVideos = async () => {
     loading.value = true;
     const result = await EnthroAPI.getVideos(1, 'undefined');
-    console.log(result);
     if (result && result.data) {
         videos.value = result.data;
     }
@@ -33,7 +32,7 @@ onMounted(() => {
     </div>
 
     <div class="videos" v-else-if="!loading && videos.length > 0">
-        <RouterLink v-for="video, index in videos" :key="index" :to="`/videos/${video.videoId}`">
+        <RouterLink v-for="video, index in videos" :key="index" :to="`/videos/${video.videoAddress}`">
             <div class="video">
                 <div class="thumbnail">
                     <img :src="video.thumbnail" alt="">

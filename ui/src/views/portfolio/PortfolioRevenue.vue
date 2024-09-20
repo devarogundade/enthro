@@ -11,8 +11,7 @@ import { type Revenue } from '@/types';
 const revenue = ref<Revenue | null>(null);
 const walletStore = useWalletStore();
 const loading = ref<boolean>(true);
-const claimingTfuel = ref<boolean>(false);
-const claimingThurbe = ref<boolean>(false);
+const claimingApt = ref<boolean>(false);
 
 const getRatio = (a: any, b: any) => {
     if (Number(a) == 0) return 0;
@@ -25,18 +24,18 @@ const sum = (a: any, b: any) => {
 
 const getRevenue = async (load: boolean = true) => {
     loading.value = load;
-    revenue.value = await Contract.getStreamer(walletStore.address!);
+    revenue.value = await Contract.getEarnings(walletStore.address!);
     loading.value = false;
 };
 
-const claimTfuel = async () => {
-    if (claimingTfuel.value) return;
-    if (revenue.value?.totalUnClaimedTfuel == BigInt(0)) {
+const claimEarnings = async () => {
+    if (claimingApt.value) return;
+    if (revenue.value?.unclaimed == BigInt(0)) {
         return;
     }
-    claimingTfuel.value = true;
+    claimingApt.value = true;
 
-    const txHash = await Contract.claimTfuel(revenue.value?.totalUnClaimedTfuel || BigInt(0));
+    const txHash = await Contract.claimEarnings(revenue.value?.unclaimed || BigInt(0));
 
     if (txHash) {
         notify.push({
@@ -51,38 +50,38 @@ const claimTfuel = async () => {
             category: 'error'
         });
     }
-    claimingTfuel.value = false;
+    claimingApt.value = false;
 
     getRevenue(false);
 };
 
-const claimThurbe = async () => {
-    if (claimingThurbe.value) return;
-    if (revenue.value?.totalUnClaimedThurbe == BigInt(0)) {
-        return;
-    }
+// const claimStreamTips = async () => {
+//     if (claimingThurbe.value) return;
+//     if (revenue.value?.totalUnClaimedThurbe == BigInt(0)) {
+//         return;
+//     }
 
-    claimingThurbe.value = true;
+//     claimingThurbe.value = true;
 
-    const txHash = await Contract.claimThurbe(revenue.value?.totalUnClaimedThurbe || BigInt(0));
+//     const txHash = await Contract.claimStreamTips(revenue.value?.totalUnClaimedThurbe || BigInt(0));
 
-    if (txHash) {
-        notify.push({
-            title: 'Successful: Revenue claimed',
-            description: 'Transaction sent',
-            category: 'success'
-        });
-    } else {
-        notify.push({
-            title: 'Error: Interracting with theta api',
-            description: 'Please try again',
-            category: 'error'
-        });
-    }
-    claimingThurbe.value = false;
+//     if (txHash) {
+//         notify.push({
+//             title: 'Successful: Revenue claimed',
+//             description: 'Transaction sent',
+//             category: 'success'
+//         });
+//     } else {
+//         notify.push({
+//             title: 'Error: Interracting with theta api',
+//             description: 'Please try again',
+//             category: 'error'
+//         });
+//     }
+//     claimingThurbe.value = false;
 
-    getRevenue(false);
-};
+//     getRevenue(false);
+// };
 
 onMounted(() => {
     getRevenue();
@@ -98,29 +97,29 @@ onMounted(() => {
         <div class="revenue">
             <div class="revenue_title">
                 <p>Total Videos & Streams Revenue</p>
-                <h3>{{ sum(Converter.toMoney(Converter.fromWei(revenue.totalClaimedTfuel)),
-                    Converter.fromWei(revenue.totalUnClaimedTfuel)) }} TFUEL</h3>
+                <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.claimed)),
+                    Converter.fromOctas(revenue.unclaimed)) }} APT</h3>
             </div>
             <div class="revenue_amounts">
                 <div class="revenue_amount">
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
-                            <img src="/images/tfuel.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromWei(revenue.totalUnClaimedTfuel)) }}</span>
-                                TFUEL ~ $0,00</p>
+                            <img src="/images/apt.png" alt="theta">
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.unclaimed)) }}</span>
+                                APT ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromWei(revenue.totalUnClaimedTfuel),
-                                Converter.fromWei(revenue.totalClaimedTfuel))
+                            getRatio(Converter.fromOctas(revenue.unclaimed),
+                                Converter.fromOctas(revenue.claimed))
                         }}% Unclaimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromWei(revenue.totalUnClaimedTfuel), Converter.fromWei(revenue.totalClaimedTfuel))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.unclaimed), Converter.fromOctas(revenue.claimed))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromWei(revenue.totalUnClaimedTfuel), Converter.fromWei(revenue.totalClaimedTfuel))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.unclaimed), Converter.fromOctas(revenue.claimed))}%;`">
                         </div>
                     </div>
                 </div>
@@ -128,22 +127,22 @@ onMounted(() => {
                 <div class="revenue_amount">
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
-                            <img src="/images/tfuel.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromWei(revenue.totalClaimedTfuel)) }}</span> TFUEL
+                            <img src="/images/apt.png" alt="theta">
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.claimed)) }}</span> APT
                                 ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromWei(revenue.totalClaimedTfuel),
-                                Converter.fromWei(revenue.totalUnClaimedTfuel))
+                            getRatio(Converter.fromOctas(revenue.claimed),
+                                Converter.fromOctas(revenue.unclaimed))
                         }}% Claimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromWei(revenue.totalClaimedTfuel), Converter.fromWei(revenue.totalUnClaimedTfuel))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.claimed), Converter.fromOctas(revenue.unclaimed))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromWei(revenue.totalClaimedTfuel), Converter.fromWei(revenue.totalUnClaimedTfuel))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.claimed), Converter.fromOctas(revenue.unclaimed))}%;`">
                         </div>
                     </div>
                 </div>
@@ -153,45 +152,45 @@ onMounted(() => {
                     <p>Unclaimed Revenue</p>
                     <div class="revenue_claim_balance">
                         <div class="revenue_claim_balance_images">
-                            <img src="/images/tfuel.png" alt="">
-                            <img src="/images/tfuel.png" alt="">
+                            <img src="/images/apt.png" alt="">
+                            <img src="/images/apt.png" alt="">
                         </div>
                         <p>~ $0,00</p>
                     </div>
                 </div>
 
-                <button class="revenue_claim_btn" @click="claimTfuel">
-                    <CoinsIcon /> {{ claimingTfuel ? 'Claiming...' : 'Claim' }}
+                <button class="revenue_claim_btn" @click="claimEarnings">
+                    <CoinsIcon /> {{ claimingApt ? 'Claiming...' : 'Claim' }}
                 </button>
             </div>
         </div>
 
-        <div class="revenue">
+        <!-- <div class="revenue">
             <div class="revenue_title">
                 <p>Total Tips Revenue</p>
-                <h3>{{ sum(Converter.toMoney(Converter.fromWei(revenue.totalClaimedThurbe)),
-                    Converter.fromWei(revenue.totalUnClaimedThurbe)) }} THUBE</h3>
+                <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.totalClaimedThurbe)),
+                    Converter.fromOctas(revenue.totalUnClaimedThurbe)) }} THUBE</h3>
             </div>
             <div class="revenue_amounts">
                 <div class="revenue_amount">
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/logo.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromWei(revenue.totalUnClaimedThurbe)) }}</span>
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.totalUnClaimedThurbe)) }}</span>
                                 THUBE ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromWei(revenue.totalUnClaimedThurbe),
-                                Converter.fromWei(revenue.totalClaimedThurbe))
+                            getRatio(Converter.fromOctas(revenue.totalUnClaimedThurbe),
+                                Converter.fromOctas(revenue.totalClaimedThurbe))
                         }}% Unclaimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromWei(revenue.totalUnClaimedThurbe), Converter.fromWei(revenue.totalClaimedThurbe))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.totalUnClaimedThurbe), Converter.fromOctas(revenue.totalClaimedThurbe))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromWei(revenue.totalUnClaimedThurbe), Converter.fromWei(revenue.totalClaimedThurbe))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.totalUnClaimedThurbe), Converter.fromOctas(revenue.totalClaimedThurbe))}%;`">
                         </div>
                     </div>
                 </div>
@@ -200,20 +199,20 @@ onMounted(() => {
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/logo.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromWei(revenue.totalClaimedThurbe)) }}</span> THUBE
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.totalClaimedThurbe)) }}</span> THUBE
                                 ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromWei(revenue.totalClaimedThurbe),
-                                Converter.fromWei(revenue.totalUnClaimedThurbe)) }}% Claimed</div>
+                            getRatio(Converter.fromOctas(revenue.totalClaimedThurbe),
+                                Converter.fromOctas(revenue.totalUnClaimedThurbe)) }}% Claimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromWei(revenue.totalClaimedThurbe), Converter.fromWei(revenue.totalUnClaimedThurbe))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.totalClaimedThurbe), Converter.fromOctas(revenue.totalUnClaimedThurbe))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromWei(revenue.totalClaimedThurbe), Converter.fromWei(revenue.totalUnClaimedThurbe))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.totalClaimedThurbe), Converter.fromOctas(revenue.totalUnClaimedThurbe))}%;`">
                         </div>
                     </div>
                 </div>
@@ -230,11 +229,11 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <button class="revenue_claim_btn" @click="claimThurbe">
+                <button class="revenue_claim_btn" @click="claimStreamTips">
                     <CoinsIcon /> {{ claimingThurbe ? 'Claiming...' : 'Claim' }}
                 </button>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 

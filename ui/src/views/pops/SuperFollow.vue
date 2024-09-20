@@ -7,7 +7,6 @@ const emit = defineEmits(['close', 'continue']);
 
 const props = defineProps({
     channel: { type: Object, required: true },
-    amount: { required: true },
     loading: { type: Boolean, required: true },
 });
 </script>
@@ -27,8 +26,8 @@ const props = defineProps({
             </div>
 
             <div class="amount">
-                <img src="/images/tfuel.png" alt="">
-                <h3><span>{{ Converter.fromWei(props.amount) }}</span> TFUEL</h3>
+                <img src="/images/apt.png" alt="">
+                <h3><span>{{ Converter.fromOctas(props.channel.s_follow_amount) }}</span> APT</h3>
                 <p>~$0.00</p>
             </div>
 

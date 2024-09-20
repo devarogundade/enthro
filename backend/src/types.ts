@@ -7,7 +7,7 @@ export type Paged<T> = {
     extra?: string;
 };
 
-export enum ViewerType {
+export enum Visibility {
     Everyone,
     Follower,
     SuperFollower

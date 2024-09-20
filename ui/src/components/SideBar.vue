@@ -8,14 +8,13 @@ import TwitterIcon from '@/components/icons/TwitterIcon.vue';
 import DiscordIcon from '@/components/icons/DiscordIcon.vue';
 import TelegramIcon from '@/components/icons/TelegramIcon.vue';
 import BubbleIcon from '@/components/icons/BubbleIcon.vue';
-import { thurbeTokenId } from '@/scripts/contract';
 import { ref } from "vue";
 
 const importing = ref<boolean>(false);
 
 const importThurbe = async () => {
     if (importing.value) return;
-   
+
 
     importing.value = false;
 };
@@ -112,7 +111,7 @@ const route = useRoute();
         <div class="links">
             <button class="support" @click="importThurbe">
                 <img src="/images/logo.png" alt="">
-                <p>{{ importing ? 'Adding' : 'Add $THUB' }}</p>
+                <p>{{ importing ? 'Adding' : 'Add $ENTR' }}</p>
             </button>
             <div class="socials">
                 <a href="#">

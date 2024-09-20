@@ -35,7 +35,7 @@ onMounted(() => {
     </div>
 
     <div class="videos" v-else-if="!loading && videos.length > 0">
-        <RouterLink v-for="video, index in videos" :key="index" :to="`/videos/${video.videoId}`">
+        <RouterLink v-for="video, index in videos" :key="index" :to="`/videos/${video.videoAddress}`">
             <div class="video">
                 <div class="thumbnail">
                     <img :src="video.thumbnail" alt="">

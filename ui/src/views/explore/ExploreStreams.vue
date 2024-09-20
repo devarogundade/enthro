@@ -34,7 +34,7 @@ onMounted(() => {
     </div>
 
     <div class="streams" v-else-if="!loading && streams.length > 0">
-        <RouterLink v-for="stream, index in streams" :key="index" :to="`/streams/${stream.streamId}`">
+        <RouterLink v-for="stream, index in streams" :key="index" :to="`/streams/${stream.streamAddress}`">
             <div class="stream">
                 <div class="thumbnail">
                     <img :src="stream.thumbnail" alt="">

@@ -117,23 +117,16 @@ const updateChannel = async () => {
         'portfolio_image_' + walletStore.address
     );
 
-    const txHash1 = await Contract.createStreamer(
-        JSON.stringify({
-            name: channel.value.name,
-            description: `${channel.value.name} followers NFT.`,
-            image: 'https://thurbe.xyz/images/basic_nft.png'
-        }),
+    const txHash = await Contract.createStreamer(
         channel.value.name,
-        channel.value.name.toLocaleUpperCase(),
-        Converter.toWei(channel.value.super_amount || 0),
-        JSON.stringify({
-            name: channel.value.name,
-            description: `${channel.value.name} super followers NFT.`,
-            image: image_url
-        })
+        'About Channel: Created on Enthro',
+        image_url,
+        cover_url,
+        Converter.toOctas(channel.value.super_amount || 0),
+        `https://enthro.netlify.app/channels/${walletStore.address}`
     );
 
-    if (!txHash1) {
+    if (!txHash) {
         notify.push({
             title: 'Error: Interracting with smart contracts',
             description: 'Please try again',
@@ -289,7 +282,7 @@ onMounted(() => {
 
 
                 <div class="input" v-show="!Boolean(existingChannel)">
-                    <p class="label">Set Super Follow Fee (TFUEL) <span>*</span></p>
+                    <p class="label">Set Super Follow Fee (APT) <span>*</span></p>
                     <input type="number" placeholder="0.00" v-model="channel.super_amount" />
                 </div>
             </div>

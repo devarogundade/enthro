@@ -9,10 +9,10 @@ export enum AccountType {
     Manual
 }
 
-export enum ViewerType {
-    Everyone,
-    Follower,
-    SuperFollower
+export enum Visibility {
+    Everyone = 0,
+    Follower = 1,
+    SuperFollower = 2
 }
 
 export enum StreamType {
@@ -33,7 +33,7 @@ export type VideoForm = {
     thumbnail: File | undefined;
     thumbnail_file_url: string | undefined;
     file_url: string | undefined;
-    viewerType: ViewerType;
+    visibility: Visibility;
     tips: boolean;
 };
 
@@ -42,7 +42,7 @@ export type StreamForm = {
     description: string | null;
     thumbnail: File | undefined;
     thumbnail_file_url: string | undefined;
-    viewerType: ViewerType;
+    visibility: Visibility;
     streamType: StreamType;
     tips: boolean;
     start_at: Date;
@@ -59,7 +59,7 @@ export type ChannelForm = {
 };
 
 export type Token = {
-    tokenId: `0x${string}`;
+    tokenId: string;
     name: string;
     symbol: string;
     image: string;
@@ -118,11 +118,12 @@ export type Channel = {
     name: string;
     image: string;
     cover: string | null;
+    s_follow_amount: number;
     created_at: Date;
 };
 
 export type Stream = {
-    streamId: string;
+    streamAddress: string;
     name: string;
     description: string | null,
     thumbnail: string;
@@ -134,7 +135,7 @@ export type Stream = {
     viewers: Account[];
     likes: string[];
     dislikes: string[];
-    viewerType: ViewerType;
+    visibility: Visibility;
     streamType: StreamType;
     created_at: Date;
     start_at: Date;
@@ -142,7 +143,7 @@ export type Stream = {
 };
 
 export type Video = {
-    videoId: string;
+    videoAddress: string;
     name: string;
     description: string | null,
     thumbnail: string;
@@ -153,7 +154,7 @@ export type Video = {
     views: number;
     likes: string[];
     dislikes: string[];
-    viewerType: ViewerType;
+    visibility: Visibility;
     created_at: Date;
 };
 
@@ -196,9 +197,6 @@ export type Chat = {
 };
 
 export type Revenue = {
-    createdAt: bigint;
-    totalClaimedTfuel: bigint;
-    totalClaimedThurbe: bigint;
-    totalUnClaimedTfuel: bigint;
-    totalUnClaimedThurbe: bigint;
+    unclaimed: bigint;
+    claimed: bigint;
 };
