@@ -27,7 +27,7 @@ const props = defineProps({
 
             <div class="amount">
                 <img src="/images/logo.png" alt="">
-                <h3><input type="number" placeholder="0.00" v-model="amount"> THUB</h3>
+                <h3><input type="number" placeholder="0.00" v-model="amount"> ENTR</h3>
                 <p>~$0.00</p>
             </div>
 

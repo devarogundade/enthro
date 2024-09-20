@@ -17,7 +17,6 @@ const videos = ref<Video[]>([]);
 const getVideos = async () => {
     loading.value = true;
     const result = await EnthroAPI.getVideos(1, walletStore.address!);
-    console.log(result);
     if (result && result.data) {
         videos.value = result.data;
     }

@@ -6,7 +6,6 @@ import { type Channel } from "@/types";
 import { onMounted, ref } from "vue";
 import { useRoute } from 'vue-router';
 import { useWalletStore } from '@/stores/wallet';
-import Contract from '@/scripts/contract';
 
 const route = useRoute();
 const loading = ref<boolean>(true);
@@ -14,7 +13,6 @@ const channel = ref<Channel | null>(null);
 const isFollow = ref<boolean>(false);
 const isSuperFollow = ref<boolean>(false);
 const walletStore = useWalletStore();
-const superFollowAmount = ref(BigInt(0));
 
 const getChannel = async () => {
     loading.value = true;
@@ -26,15 +24,6 @@ const getChannel = async () => {
 };
 
 const getFollows = async () => {
-    const cardId = await Contract.getCardId(
-        (route.params.id as any) as string,
-        false
-    );
-
-    const exclusiveCardId = await Contract.getCardId(
-        (route.params.id as any) as string,
-        true
-    );
 
     if (walletStore.address) {
         // if (cardId) {
@@ -46,10 +35,6 @@ const getFollows = async () => {
         //     const cardBalance = await getNftBalance(exclusiveCardId, walletStore.address);
         //     isSuperFollow.value = cardBalance > 0;
         // }
-    }
-
-    if (exclusiveCardId) {
-        superFollowAmount.value = await Contract.getMintPrice(exclusiveCardId);
     }
 };
 
@@ -64,8 +49,7 @@ onMounted(() => {
     </div>
 
     <main v-else-if="!loading && channel">
-        <ChannelHeader @refresh="getFollows" :superFollowAmount="superFollowAmount" :channel="channel"
-            :isFollow="isFollow" :isSuperFollow="isSuperFollow" />
+        <ChannelHeader @refresh="getFollows" :channel="channel" :isFollow="isFollow" :isSuperFollow="isSuperFollow" />
         <RouterView />
     </main>
 </template>

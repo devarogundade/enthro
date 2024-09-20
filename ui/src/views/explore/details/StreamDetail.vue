@@ -768,7 +768,7 @@ onBeforeUnmount(() => {
                             <p>Tipped</p>
                             <div class="comment_tip_amount">
                                 <img src="/images/logo.png" alt="">
-                                <p><span>{{ chat.tip.amount }}</span> THUB</p>
+                                <p><span>{{ chat.tip.amount }}</span> ENTR</p>
                             </div>
                         </div>
                     </div>
@@ -779,7 +779,7 @@ onBeforeUnmount(() => {
                         <p>Tipping</p>
                         <div class="comment_tipping_amount">
                             <img src="/images/logo.png" alt="">
-                            <p><span>{{ tip.amount }}</span> THUB</p>
+                            <p><span>{{ tip.amount }}</span> ENTR</p>
                             <EditIcon @click="tip.open = true" style="cursor: pointer;" />
                             <CloseIcon @click="tip.amount = undefined" style="cursor: pointer;" />
                         </div>

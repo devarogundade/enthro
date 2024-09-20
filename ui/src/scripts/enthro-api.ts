@@ -28,7 +28,8 @@ const EnthroAPI = {
         address: string,
         name: string,
         image: string,
-        cover: string | null
+        cover: string | null,
+        s_follow_amount: number
     ): Promise<Channel | null> {
         try {
             const channel: Channel = {
@@ -36,6 +37,7 @@ const EnthroAPI = {
                 name,
                 image,
                 cover,
+                s_follow_amount,
                 created_at: new Date()
             };
             const response = await client.post('/create-channel', channel);

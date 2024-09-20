@@ -13,6 +13,7 @@ import EnthroAPI from '@/scripts/enthro-api';
 import { notify } from '@/reactives/notify';
 import { ref } from "vue";
 import SuperFollow from '@/views/pops/SuperFollow.vue';
+import { Visibility } from '@/types';
 
 const route = useRoute();
 const walletStore = useWalletStore();
@@ -24,8 +25,7 @@ const emit = defineEmits(['refresh']);
 const props = defineProps({
     channel: { type: Object, required: true },
     isSuperFollow: { type: Boolean },
-    isFollow: { type: Boolean },
-    superFollowAmount: { required: true }
+    isFollow: { type: Boolean }
 });
 
 const super_follow = ref({
@@ -47,10 +47,8 @@ const follow = async () => {
     following.value = true;
 
     const txHash = await Contract.followStreamer(
-        props.channel.owner.address as string,
         walletStore.address,
-        false,
-        BigInt(0)
+        Visibility.Follower
     );
 
     if (txHash) {
@@ -85,11 +83,8 @@ const superFollow = async () => {
     superFollowing.value = true;
 
     const txHash = await Contract.followStreamer(
-        props.channel.owner.address as string,
         walletStore.address,
-        true,
-        // @ts-ignore
-        props.superFollowAmount
+        Visibility.SuperFollower
     );
 
     super_follow.value.open = false;
@@ -189,8 +184,8 @@ const isCreator = (): boolean => {
             </div>
         </div>
 
-        <SuperFollow :loading="superFollowing" :channel="props.channel" :amount="props.superFollowAmount"
-            v-if="super_follow.open" @close="super_follow.open = false" @continue="superFollow" />
+        <SuperFollow :loading="superFollowing" :channel="props.channel" v-if="super_follow.open"
+            @close="super_follow.open = false" @continue="superFollow" />
     </div>
 </template>
 

@@ -117,12 +117,14 @@ const updateChannel = async () => {
         'portfolio_image_' + walletStore.address
     );
 
+    const sFollowAmount = Converter.toOctas(channel.value.super_amount || 0);
+
     const txHash = await Contract.createStreamer(
         channel.value.name,
         'About Channel: Created on Enthro',
         image_url,
         cover_url,
-        Converter.toOctas(channel.value.super_amount || 0),
+        sFollowAmount,
         `https://enthro.netlify.app/channels/${walletStore.address}`
     );
 
@@ -140,7 +142,8 @@ const updateChannel = async () => {
         walletStore.address,
         channel.value.name!,
         image_url,
-        cover_url
+        cover_url,
+        Number(sFollowAmount)
     );
 
     if (!createdChannel) {

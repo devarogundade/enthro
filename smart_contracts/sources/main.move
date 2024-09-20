@@ -111,7 +111,7 @@ module enthro::main {
         state.admin_address = option::some(admin_address);
         state.enthro_coin = option::some(enthro_coin);
 
-        coin::register<AptosCoin>(admin);
+        coin::register<AptosCoin>(&state.signer_cap);
     }
 
     public entry fun create_streamer(
@@ -313,7 +313,7 @@ module enthro::main {
 
         // mint collection token
         tokens::create_token(
-            sender, 
+            res_signer, 
             collection,
             streamer.channel.about, 
             streamer.channel.name, 
