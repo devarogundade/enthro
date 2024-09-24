@@ -217,7 +217,7 @@ onMounted(() => {
                 <div class="nav_items">
 
                     <div class="nav nav_action" @click="updateChannel">
-                        <EditIcon />
+                        <EditIcon :color="'var(--bg)'" />
                         <p>
                             {{ updating ? 'Creating' : 'Create' }}
                         </p>
@@ -367,12 +367,11 @@ onMounted(() => {
 }
 
 .nav_action {
-    background: var(--primary-light);
-    cursor: pointer;
+    background: var(--primary);
 }
 
 .nav_action p {
-    background: var(--primary-light);
+    color: var(--bg);
 }
 
 .detail_form_wrapper {

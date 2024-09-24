@@ -35,7 +35,7 @@ const super_follow = ref({
 
 const follow = async () => {
     if (following.value) return;
-    if (!walletStore.address) {
+    if (!(walletStore.address && walletStore.account)) {
         notify.push({
             title: 'Error: Connect your wallet',
             description: 'Wallet connection is mandatory',
@@ -47,6 +47,7 @@ const follow = async () => {
     following.value = true;
 
     const txHash = await Contract.followStreamer(
+        walletStore.account?.email,
         walletStore.address,
         Visibility.Follower
     );
@@ -71,7 +72,7 @@ const follow = async () => {
 
 const superFollow = async () => {
     if (superFollowing.value) return;
-    if (!walletStore.address) {
+    if (!(walletStore.address && walletStore.account)) {
         notify.push({
             title: 'Error: Connect your wallet',
             description: 'Wallet connection is mandatory',
@@ -83,6 +84,7 @@ const superFollow = async () => {
     superFollowing.value = true;
 
     const txHash = await Contract.followStreamer(
+        walletStore.account?.email,
         walletStore.address,
         Visibility.SuperFollower
     );
@@ -136,7 +138,7 @@ const isCreator = (): boolean => {
                     <div class="channel_follows" v-if="!isCreator()">
                         <button v-if="isSuperFollow" class="creator_follow_super">
                             <div class="creator_follow_icon">
-                                <FlashIcon :color="'var(--tx-normal)'" />
+                                <FlashIcon :color="'var(--primary)'" />
                             </div>
                             <p>Following</p>
                         </button>

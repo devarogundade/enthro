@@ -469,11 +469,11 @@ const uploadVideo = async () => {
 }
 
 .nav_action {
-    background: var(--primary-light);
+    background: var(--primary);
 }
 
 .nav_action p {
-    background: var(--primary-light);
+    color: var(--bg);
 }
 
 .detail_form_wrapper {

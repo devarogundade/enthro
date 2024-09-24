@@ -1,9 +1,10 @@
 import { Visibility, type Revenue } from '../types';
 import { UserResponseStatus } from '@aptos-labs/wallet-standard';
 import { aptosConnectWallet } from './connect';
-import { AccountAddress, Aptos, APTOS_COIN, AptosConfig, createResourceAddress, Network } from '@aptos-labs/ts-sdk';
+import { AccountAddress, Aptos, APTOS_COIN, AptosConfig, createResourceAddress, createObjectAddress, Network } from '@aptos-labs/ts-sdk';
 
 const enthroId: string = '0xef19dcc223849815d0155e580538af67f8ac128a9f3b510f80e65d14818d2fb9';
+export const resSignerAddress: string = '0x108c61a131198034d0116dd84aba037005af53d861ddd1d9cccee71175e5e594';
 
 export const aptos = new Aptos(
     new AptosConfig({ network: Network.TESTNET })
@@ -147,6 +148,7 @@ const Contract = {
     },
 
     async followStreamer(
+        token_name: string,
         streamer: string,
         visibility: Visibility
     ): Promise<string | null> {
@@ -155,6 +157,7 @@ const Contract = {
                 payload: {
                     function: `${enthroId}::main::follow_streamer`,
                     functionArguments: [
+                        token_name,
                         streamer,
                         visibility
                     ],
@@ -260,6 +263,13 @@ const Contract = {
         seed: string
     ): string {
         return createResourceAddress(AccountAddress.from(streamer), seed).toString();
+    },
+
+    createCollectionAddress(
+        creator: string,
+        collection: string
+    ): string {
+        return createObjectAddress(AccountAddress.from(creator), collection).toString();
     }
 };
 

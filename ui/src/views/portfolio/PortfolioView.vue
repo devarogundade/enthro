@@ -43,7 +43,7 @@ const walletStore = useWalletStore();
 <style scoped>
 .no_channel_container {
     display: flex;
-    margin-top: 60px;
+    margin-top: 100px;
     justify-content: center;
 }
 

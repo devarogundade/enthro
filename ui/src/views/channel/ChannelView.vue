@@ -2,10 +2,12 @@
 import ChannelHeader from '@/components/ChannelHeader.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
 import EnthroAPI from '@/scripts/enthro-api';
-import { type Channel } from "@/types";
+import type { Channel, Account } from "@/types";
 import { onMounted, ref } from "vue";
 import { useRoute } from 'vue-router';
 import { useWalletStore } from '@/stores/wallet';
+import { hasToken } from '@/scripts/nodit';
+import Contract, { resSignerAddress } from '@/scripts/contract';
 
 const route = useRoute();
 const loading = ref<boolean>(true);
@@ -24,17 +26,24 @@ const getChannel = async () => {
 };
 
 const getFollows = async () => {
+    if (walletStore.address && channel.value) {
+        if (walletStore.address) {
+            isFollow.value = await hasToken(
+                Contract.createCollectionAddress(
+                    resSignerAddress,
+                    `${(channel.value as Channel)?.name} followers`
+                ),
+                walletStore.address
+            );
 
-    if (walletStore.address) {
-        // if (cardId) {
-        //     const cardBalance = await getNftBalance(cardId, walletStore.address);
-        //     isFollow.value = cardBalance > 0;
-        // }
-
-        // if (exclusiveCardId) {
-        //     const cardBalance = await getNftBalance(exclusiveCardId, walletStore.address);
-        //     isSuperFollow.value = cardBalance > 0;
-        // }
+            isSuperFollow.value = await hasToken(
+                Contract.createCollectionAddress(
+                    resSignerAddress,
+                    `${(channel.value as Channel)?.name} super followers`
+                ),
+                walletStore.address
+            );
+        }
     }
 };
 

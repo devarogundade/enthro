@@ -281,6 +281,7 @@ module enthro::main {
 
     public entry fun follow_streamer<AptosCoin>(
         sender: &signer,
+        token_name: String,
         streamer_address: address,
         visibility: u64
     ) acquires Streamer, EnthroState {
@@ -311,7 +312,7 @@ module enthro::main {
             &res_signer, 
             collection,
             streamer.channel.about, 
-            streamer.channel.name, 
+            token_name, 
             streamer.channel.image, 
             sender_address
         );

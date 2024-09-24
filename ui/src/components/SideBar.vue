@@ -26,7 +26,7 @@ const route = useRoute();
                     <RouterLink to="/">
                         <div class="title">
                             <DiscoverIcon
-                                :color="(route.name as string)?.startsWith('explore') ? '#161618' : '#ABADAE'" />
+                                :color="(route.name as string)?.startsWith('explore') ? 'var(--tx-semi)' : '#ABADAE'" />
                             <h3>Explore</h3>
                             <div
                                 :class="(route.name as string)?.startsWith('explore') ? 'indicator indicator_active' : 'indicator'">
@@ -58,7 +58,7 @@ const route = useRoute();
                     <RouterLink to="/portfolio">
                         <div class="title">
                             <AirdropIcon
-                                :color="(route.name as string)?.startsWith('portfolio') ? '#161618' : '#ABADAE'" />
+                                :color="(route.name as string)?.startsWith('portfolio') ? 'var(--tx-semi)' : '#ABADAE'" />
                             <h3>My Channel</h3>
                             <div
                                 :class="(route.name as string)?.startsWith('portfolio') ? 'indicator indicator_active' : 'indicator'">
@@ -89,7 +89,8 @@ const route = useRoute();
                 <div class="tab_parent">
                     <RouterLink to="/ai">
                         <div class="title">
-                            <BubbleIcon :color="(route.name as string)?.startsWith('ai') ? '#161618' : '#ABADAE'" />
+                            <BubbleIcon
+                                :color="(route.name as string)?.startsWith('ai') ? 'var(--tx-semi)' : '#ABADAE'" />
                             <h3>Enthro AI</h3>
                             <div
                                 :class="(route.name as string)?.startsWith('ai') ? 'indicator indicator_active' : 'indicator'">

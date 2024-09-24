@@ -23,7 +23,7 @@ import { format as formatDate } from 'timeago.js';
 import EnthroAPI from '@/scripts/enthro-api';
 import SocketAPI from '@/scripts/socket-api';
 import ThetaAPI from '@/scripts/theta-api';
-import Contract from '@/scripts/contract';
+import Contract, { resSignerAddress } from '@/scripts/contract';
 import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
 import SendTip from '@/views/pops/SendTip.vue';
@@ -32,6 +32,7 @@ import { notify } from '@/reactives/notify';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import { sendChat, getChats } from '@/scripts/chat-api';
+import { hasToken } from '@/scripts/nodit';
 
 const socketAPI = new SocketAPI();
 const route = useRoute();
@@ -72,7 +73,7 @@ const getVideo = async () => {
 
 const follow = async () => {
     if (following.value) return;
-    if (!walletStore.address) {
+    if (!(walletStore.address && walletStore.account)) {
         notify.push({
             title: 'Error: Connect your wallet',
             description: 'Wallet connection is mandatory',
@@ -84,7 +85,8 @@ const follow = async () => {
     following.value = true;
 
     const txHash = await Contract.followStreamer(
-        walletStore.address,
+        walletStore.account?.email,
+        (video.value?.streamer as Account).address as string,
         Visibility.Follower
     );
 
@@ -114,7 +116,7 @@ const follow = async () => {
 
 const superFollow = async () => {
     if (superFollowing.value) return;
-    if (!walletStore.address) {
+    if (!(walletStore.address && walletStore.account)) {
         notify.push({
             title: 'Error: Connect your wallet',
             description: 'Wallet connection is mandatory',
@@ -126,7 +128,8 @@ const superFollow = async () => {
     superFollowing.value = true;
 
     const txHash = await Contract.followStreamer(
-        walletStore.address,
+        walletStore.account?.email,
+        (video.value?.streamer as Account).address as string,
         Visibility.SuperFollower
     );
 
@@ -272,8 +275,23 @@ const dislike = async () => {
 };
 
 const init = async () => {
-    // isFollow.value = cardBalance > 0;
-    // isSuperFollow.value = cardBalance > 0;
+    if (walletStore.address) {
+        isFollow.value = await hasToken(
+            Contract.createCollectionAddress(
+                resSignerAddress,
+                `${(video.value?.streamer as Account).channel?.name} followers`
+            ),
+            walletStore.address
+        );
+
+        isSuperFollow.value = await hasToken(
+            Contract.createCollectionAddress(
+                resSignerAddress,
+                `${(video.value?.streamer as Account).channel?.name} super followers`
+            ),
+            walletStore.address
+        );
+    }
 
     if (video.value?.visibility == Visibility.Everyone) {
         payable.value = true;
@@ -453,7 +471,7 @@ onBeforeUnmount(() => {
                 <div class="creator_follow" v-if="!isCreator()">
                     <button v-if="isSuperFollow" class="creator_follow_super">
                         <div class="creator_follow_icon">
-                            <FlashIcon :color="'var(--bg)'" />
+                            <FlashIcon :color="'var(--primary)'" />
                         </div>
                         <p>Following</p>
                     </button>

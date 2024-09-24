@@ -67,7 +67,7 @@ const streamType = ref<StreamType>(StreamType.External);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(219, 219, 219, 0.4);
+    background: rgba(0, 0, 0, 0.4);
     z-index: 10;
     top: 0;
     left: 0;
