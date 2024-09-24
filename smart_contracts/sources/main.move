@@ -89,7 +89,7 @@ module enthro::main {
             &res_signer, 
             string::utf8(b"Enthro Collection"), 
             string::utf8(b"Enthro"), 
-            string::utf8(b"https://enthro.xyz")
+            string::utf8(b"https://enthro.netlify.app")
         );
 
         let state = EnthroState {

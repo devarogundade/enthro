@@ -38,8 +38,8 @@ module enthro::assets {
             string::utf8(b"Enthro Coin"),
             string::utf8(b"ENTR"),
             8,
-            string::utf8(b"https://enthro.xyz/images/enthro.png"),
-            string::utf8(b"https://enthro.xyz")
+            string::utf8(b"https://enthro.netlify.app/images/enthro.png"),
+            string::utf8(b"https://enthro.netlify.app")
         );
     }
     

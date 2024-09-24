@@ -528,7 +528,7 @@ const share = () => {
         navigator.share({
             title: stream.value?.name,
             text: stream.value?.description || '',
-            url: `https://enthro.xyz/streams/${stream.value?.streamAddress!}`
+            url: `https://enthro.netlify.app/streams/${stream.value?.streamAddress!}`
         });
     } catch (error) {
         notify.push({
