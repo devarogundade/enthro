@@ -3,8 +3,8 @@ import { UserResponseStatus } from '@aptos-labs/wallet-standard';
 import { aptosConnectWallet } from './connect';
 import { AccountAddress, Aptos, APTOS_COIN, AptosConfig, createResourceAddress, createObjectAddress, Network } from '@aptos-labs/ts-sdk';
 
-const enthroId: string = '0xef19dcc223849815d0155e580538af67f8ac128a9f3b510f80e65d14818d2fb9';
-export const resSignerAddress: string = '0x108c61a131198034d0116dd84aba037005af53d861ddd1d9cccee71175e5e594';
+const enthroId: string = '0x3ec28246af984f2d3bd92cb6f78472682e241e35e097c5862a94f6244f752275';
+export const resSignerAddress: string = '0x362f01be4c232c3e215a0bec48efd953d14402069a25f62f1f90341ce85fa5a6';
 
 export const aptos = new Aptos(
     new AptosConfig({ network: Network.TESTNET })
