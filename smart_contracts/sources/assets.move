@@ -6,29 +6,34 @@ module enthro::assets {
     use aptos_framework::primary_fungible_store;
     use std::string::{Self, String};
     use aptos_framework::event;
+    use aptos_framework::account::{Self, SignerCapability};
 
     const T_SUPPLY: u64 = 1_000_000_000_000_000;
 
     friend enthro::main;
 
-    #[event]
-    struct MintFAEvent has store, drop {
-        fa_obj_addr: address,
-        amount: u64,
-        recipient_addr: address,
-    }
-
     struct FAController has key {
         mint_ref: fungible_asset::MintRef,
         burn_ref: fungible_asset::BurnRef,
-        transfer_ref: fungible_asset::TransferRef,
-        enthro_store: Object<FungibleStore>
+        transfer_ref: fungible_asset::TransferRef
+    }
+
+    struct Registry has key {
+        signer_cap: SignerCapability
     }
 
     fun init_module(enthro: &signer) {
+        let (res_signer, res_signer_cap) = account::create_resource_account(enthro, b"Registry");
+
+        let registry = Registry {
+            signer_cap: res_signer_cap
+        };
+
+        move_to(enthro, registry);
+
         // create enthro coins
-        let thub_metadata = create_fungible_asset_internal(
-            enthro,
+        create_fungible_asset_internal(
+            &res_signer,
             option::some((T_SUPPLY as u128)),
             string::utf8(b"Enthro Coin"),
             string::utf8(b"ENTR"),
@@ -37,12 +42,17 @@ module enthro::assets {
             string::utf8(b"https://enthro.xyz")
         );
     }
+    
+    // ============== Friend Functions ============== //
 
     public(friend) fun deposit_enthro(
         sender: &signer,
         fa: Object<fungible_asset::Metadata>,
         amount: u64
-    ) acquires FAController {
+    ) acquires FAController, Registry {
+        let registry = borrow_global<Registry>(@enthro);
+        let res_signer = account::create_signer_with_capability(&registry.signer_cap);
+
         let fa_obj_addr = object::object_address(&fa);
         let config = borrow_global<FAController>(fa_obj_addr);
 
@@ -53,10 +63,15 @@ module enthro::assets {
             fa
         );
 
+        let enthro_store = primary_fungible_store::ensure_primary_store_exists(
+            signer::address_of(&res_signer),
+            fa
+        );
+
         fungible_asset::transfer(
             sender,
             sender_store,
-            config.enthro_store,
+            enthro_store,
             amount
         );
     }
@@ -65,7 +80,10 @@ module enthro::assets {
         fa: Object<fungible_asset::Metadata>,
         receiver: address,
         amount: u64
-    ) acquires FAController {
+    ) acquires FAController, Registry {
+        let registry = borrow_global<Registry>(@enthro);
+        let res_signer = account::create_signer_with_capability(&registry.signer_cap);
+
         let fa_obj_addr = object::object_address(&fa);
         let config = borrow_global<FAController>(fa_obj_addr);
 
@@ -74,15 +92,20 @@ module enthro::assets {
             fa
         );
 
+        let enthro_store = primary_fungible_store::ensure_primary_store_exists(
+            signer::address_of(&res_signer),
+            fa
+        );
+
         fungible_asset::transfer_with_ref(
             &config.transfer_ref,
-            config.enthro_store,
+            enthro_store,
             receiver_store,
             amount
         );
     }
 
-    public entry fun mint_fungible_asset(
+    public(friend) fun mint_fungible_asset(
         sender: &signer,
         fa: Object<fungible_asset::Metadata>,
         amount: u64
@@ -91,11 +114,6 @@ module enthro::assets {
         let fa_obj_addr = object::object_address(&fa);
         let config = borrow_global<FAController>(fa_obj_addr);
         primary_fungible_store::mint(&config.mint_ref, sender_addr, amount);
-        event::emit(MintFAEvent {
-            fa_obj_addr,
-            amount,
-            recipient_addr: sender_addr,
-        });
     }
 
     fun create_fungible_asset_internal(
@@ -127,16 +145,13 @@ module enthro::assets {
         let mint_ref = fungible_asset::generate_mint_ref(fa_obj_constructor_ref);
         let burn_ref = fungible_asset::generate_burn_ref(fa_obj_constructor_ref);
         let transfer_ref = fungible_asset::generate_transfer_ref(fa_obj_constructor_ref);
-        let enthro_store = primary_fungible_store::ensure_primary_store_exists(
-            sender_address, 
-            metadata_obj
-        );
+        
+        primary_fungible_store::mint(&mint_ref, sender_address, 1_000_000_000_000_000);
 
         move_to(&fa_obj_signer, FAController {
             mint_ref,
             burn_ref,
-            transfer_ref,
-            enthro_store
+            transfer_ref
         });
 
         metadata_obj

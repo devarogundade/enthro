@@ -18,29 +18,14 @@ module enthro::events {
     }
 
     #[event]
-    struct ClaimStreamEarningsEvent has drop, store {
-        stream_address: address,
-        sender_address: address,
+    struct ClaimEarningsEvent has drop, store {
+        streamer_address: address,
         amount: u64
     }
 
     #[event]
-    struct ClaimVideoEarningsEvent has drop, store {
-        video_address: address,
-        sender_address: address,
-        amount: u64
-    }
-
-    #[event]
-    struct TipStreamEvent has drop, store {
-        stream_address: address,
-        sender_address: address,
-        amount: u64
-    }
-
-    #[event]
-    struct TipVideoEvent has drop, store {
-        video_address: address,
+    struct TipEvent has drop, store {
+        streamer_address: address,
         sender_address: address,
         amount: u64
     }
@@ -69,49 +54,23 @@ module enthro::events {
         });
     }
 
-    public(friend) fun claim_stream_earnings_event(
-        stream_address: address,
-        sender_address: address,
+    public(friend) fun claim_earnings_event(
+        streamer_address: address,
         amount: u64
     ) {
-        event::emit(ClaimStreamEarningsEvent {
-            stream_address,
-            sender_address,
-            amount
-        });
-    }
-    
-    public(friend) fun claim_video_earnings_event(
-        video_address: address,
-        sender_address: address,
-        amount: u64
-    ) {
-        event::emit(ClaimVideoEarningsEvent {
-            video_address,
-            sender_address,
+        event::emit(ClaimEarningsEvent {
+            streamer_address,
             amount
         });
     }
 
-    public(friend) fun tip_stream_event(
-        stream_address: address,
+    public(friend) fun tip_event(
+        streamer_address: address,
         sender_address: address,
         amount: u64
     ) {
-        event::emit(TipStreamEvent {
-            stream_address,
-            sender_address,
-            amount
-        });
-    }
-
-    public(friend) fun tip_video_event(
-        video_address: address,
-        sender_address: address,
-        amount: u64
-    ) {
-        event::emit(TipVideoEvent {
-            video_address,
+        event::emit(TipEvent {
+            streamer_address,
             sender_address,
             amount
         });

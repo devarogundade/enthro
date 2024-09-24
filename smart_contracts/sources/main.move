@@ -33,8 +33,6 @@ module enthro::main {
         start_secs: u64,
         live: bool,
         visibility: u64,
-        claimed_tipped_amount: u64,
-        unclaimed_tipped_amount: u64,
         timestamp: u64,
         owner: address,
         tips: bool,
@@ -47,8 +45,6 @@ module enthro::main {
         description: String,
         thumbnail: String,
         visibility: u64,
-        claimed_tipped_amount: u64,
-        unclaimed_tipped_amount: u64,
         timestamp: u64,
         owner: address,
         tips: bool,
@@ -62,6 +58,8 @@ module enthro::main {
         s_follow_amount: u64,
         unclaimed_apt: u64,
         claimed_apt: u64,
+        unclaimed_enthro: u64,
+        claimed_enthro: u64,
         channel: Channel
     }
 
@@ -110,7 +108,9 @@ module enthro::main {
         state.admin_address = option::some(admin_address);
         state.enthro_coin = option::some(enthro_coin);
 
-        coin::register<AptosCoin>(&state.signer_cap);
+        let res_signer = account::create_signer_with_capability(&state.signer_cap);
+
+        coin::register<AptosCoin>(&res_signer);
     }
 
     public entry fun create_streamer(
@@ -146,6 +146,8 @@ module enthro::main {
             s_follow_amount, 
             unclaimed_apt: 0,
             claimed_apt: 0,
+            unclaimed_enthro: 0,
+            claimed_enthro: 0,
             channel 
         };
 
@@ -153,6 +155,7 @@ module enthro::main {
     }
 
     public entry fun start_stream(
+        seed: vector<u8>,
         sender: &signer,
         title: String,
         description: String,
@@ -169,8 +172,6 @@ module enthro::main {
 
         let streamer = borrow_global<Streamer>(sender_address);
 
-        let seed = b"Stream_";
-        vector::append(&mut seed, bcs::to_bytes(&title));
         let (stream_signer,_) = account::create_resource_account(sender, seed);
 
         let stream_address = signer::address_of(&stream_signer);
@@ -199,8 +200,6 @@ module enthro::main {
             start_secs,
             live: false,
             visibility,
-            claimed_tipped_amount: 0,
-            unclaimed_tipped_amount: 0,
             timestamp: timestamp::now_seconds(),
             owner: stream_address,
             tips,
@@ -218,6 +217,7 @@ module enthro::main {
     }
 
     public entry fun upload_video(
+        seed: vector<u8>,
         sender: &signer,
         title: String,
         description: String,
@@ -233,8 +233,6 @@ module enthro::main {
 
         let streamer = borrow_global<Streamer>(sender_address);
 
-        let seed = b"Video_";
-        vector::append(&mut seed, bcs::to_bytes(&title));
         let (video_signer,_) = account::create_resource_account(sender, seed);
 
         let video_address = signer::address_of(&video_signer);
@@ -265,8 +263,6 @@ module enthro::main {
             description,
             thumbnail,
             visibility,
-            claimed_tipped_amount: 0,
-            unclaimed_tipped_amount: 0,
             timestamp: timestamp::now_seconds(),
             owner: sender_address,
             tips,
@@ -289,7 +285,7 @@ module enthro::main {
         visibility: u64
     ) acquires Streamer, EnthroState {
         let state = borrow_global<EnthroState>(@enthro);
-        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+        let res_signer = account::create_signer_with_capability(&state.signer_cap);
 
         let sender_address = signer::address_of(sender);
 
@@ -299,7 +295,7 @@ module enthro::main {
             // tranfer apt to contract
             coin::transfer<AptosCoin>(
                 sender,
-                signer::address_of(res_signer),
+                signer::address_of(&res_signer),
                 streamer.s_follow_amount
             );
 
@@ -312,7 +308,7 @@ module enthro::main {
 
         // mint collection token
         tokens::create_token(
-            res_signer, 
+            &res_signer, 
             collection,
             streamer.channel.about, 
             streamer.channel.name, 
@@ -321,47 +317,24 @@ module enthro::main {
         );
     }
 
-    public entry fun tip_stream(
+    public entry fun tip_streamer(
         sender: &signer,
-        stream_address: address,
+        streamer_address: address,
         amount: u64
-    ) acquires Stream, EnthroState {
+    ) acquires Streamer, EnthroState {
         let sender_address = signer::address_of(sender);
 
-        let stream = borrow_global_mut<Stream>(stream_address);
+        let streamer = borrow_global_mut<Streamer>(streamer_address);
 
         let state = borrow_global<EnthroState>(@enthro);
         let enthro_coin = *option::borrow(&state.enthro_coin);   
 
         assets::deposit_enthro(sender, enthro_coin, amount);
 
-        stream.unclaimed_tipped_amount = stream.unclaimed_tipped_amount + amount;
+        streamer.unclaimed_enthro = streamer.unclaimed_enthro + amount;
         
-        events::tip_stream_event(
-            stream_address,
-            sender_address,
-            amount
-        );
-    }
-
-    public entry fun tip_video(
-        sender: &signer,
-        video_address: address,
-        amount: u64
-    ) acquires Video, EnthroState {
-        let sender_address = signer::address_of(sender);
-
-        let video = borrow_global_mut<Video>(video_address);
-
-        let state = borrow_global<EnthroState>(@enthro);
-        let enthro_coin = *option::borrow(&state.enthro_coin);   
-
-        assets::deposit_enthro(sender, enthro_coin, amount);
-
-        video.unclaimed_tipped_amount = video.unclaimed_tipped_amount + amount;
-        
-        events::tip_video_event(
-            video_address,
+        events::tip_event(
+            streamer_address,
             sender_address,
             amount
         );
@@ -426,7 +399,7 @@ module enthro::main {
         amount: u64
     ) acquires Streamer, EnthroState  {
         let state = borrow_global<EnthroState>(@enthro);
-        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+        let res_signer = account::create_signer_with_capability(&state.signer_cap);
 
         let sender_address = signer::address_of(sender);
 
@@ -435,76 +408,47 @@ module enthro::main {
         assert!(streamer.unclaimed_apt >= amount, error::invalid_argument(E_NOT_ENOUGH));
 
         coin::transfer<AptosCoin>(
-            res_signer,
+            &res_signer,
             sender_address,
             amount
         );
 
         streamer.unclaimed_apt = streamer.unclaimed_apt - amount;
         streamer.claimed_apt = streamer.claimed_apt + amount;
-    }
 
-    public entry fun claim_stream_tips(
-        sender: &signer,
-        stream_address: address,
-        amount: u64
-    ) acquires Stream, EnthroState {
-        let state = borrow_global<EnthroState>(@enthro);
-        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
-
-        let sender_address = signer::address_of(sender);
-
-        let stream = borrow_global_mut<Stream>(stream_address);
-
-        assert!(stream.unclaimed_tipped_amount <= amount, error::invalid_argument(E_NOT_ENOUGH));
-
-        let token_obj = tokens::get_token_obj(
-            signer::address_of(res_signer),
-            stream.media_key.collection,
-            stream.media_key.token
-        );
-
-        // check if the sender owned the stream token
-        assert!(object::owner(token_obj) == sender_address, error::invalid_argument(E_NOT_ALLOWED));
-
-        stream.claimed_tipped_amount = stream.claimed_tipped_amount + amount;
-        stream.unclaimed_tipped_amount = stream.unclaimed_tipped_amount - amount;
-
-        events::claim_stream_earnings_event(
-            stream_address,
+        events::claim_earnings_event(
             sender_address,
             amount
         );
     }
 
-    public entry fun claim_video_tips(
+    public entry fun claim_tips(
         sender: &signer,
-        video_address: address,
+        // streamer_address: address,
         amount: u64
-    ) acquires Video, EnthroState {
+    ) acquires Streamer, EnthroState {
         let state = borrow_global<EnthroState>(@enthro);
-        let res_signer = &account::create_signer_with_capability(&state.signer_cap);
+        let res_signer = account::create_signer_with_capability(&state.signer_cap);
 
         let sender_address = signer::address_of(sender);
 
-        let video = borrow_global_mut<Video>(video_address);
+        let streamer = borrow_global_mut<Streamer>(sender_address);
 
-        assert!(video.unclaimed_tipped_amount <= amount, error::invalid_argument(E_NOT_ENOUGH));
+        assert!(streamer.unclaimed_enthro <= amount, error::invalid_argument(E_NOT_ENOUGH));
 
-        let token_obj = tokens::get_token_obj(
-            signer::address_of(res_signer),
-            video.media_key.collection,
-            video.media_key.token
-        );
+        // let token_obj = tokens::get_token_obj(
+        //     signer::address_of(&res_signer),
+        //     streamer.media_key.collection,
+        //     streamer.media_key.token
+        // );
 
-        // check if the sender owned the video token
-        assert!(object::owner(token_obj) == sender_address, error::invalid_argument(E_NOT_ALLOWED));
+        // check if the sender owned the stream token
+        // assert!(object::owner(token_obj) == sender_address, error::invalid_argument(E_NOT_ALLOWED));
 
-        video.claimed_tipped_amount = video.claimed_tipped_amount + amount;
-        video.unclaimed_tipped_amount = video.unclaimed_tipped_amount - amount;
+        streamer.claimed_enthro = streamer.claimed_enthro + amount;
+        streamer.unclaimed_enthro = streamer.unclaimed_enthro - amount;
 
-        events::claim_video_earnings_event(
-            video_address,
+        events::claim_earnings_event(
             sender_address,
             amount
         );
@@ -513,24 +457,13 @@ module enthro::main {
     #[view]
     public fun get_earnings(
         streamer_address: address
-    ): (u64, u64) acquires Streamer {
+    ): (u64, u64, u64, u64) acquires Streamer {
         let streamer = borrow_global<Streamer>(streamer_address);
-        (streamer.unclaimed_apt, streamer.claimed_apt)
-    }
-
-    #[view]
-    public fun get_stream_tips(
-        stream_address: address
-    ): (u64, u64) acquires Stream {
-        let stream = borrow_global<Stream>(stream_address);
-        (stream.unclaimed_tipped_amount, stream.claimed_tipped_amount)
-    }
-    
-    #[view]
-    public fun get_video_tips(
-        video_address: address
-    ): (u64, u64) acquires Video {
-        let video = borrow_global<Video>(video_address);
-        (video.unclaimed_tipped_amount, video.claimed_tipped_amount)
+        (
+            streamer.unclaimed_apt, 
+            streamer.claimed_apt,
+            streamer.unclaimed_enthro, 
+            streamer.claimed_enthro
+        )
     }
 }
