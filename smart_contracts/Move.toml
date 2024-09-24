@@ -5,8 +5,10 @@ authors = []
 
 [addresses]
 enthro = "_"
+creator = "0xe0890b23834153438a2bf42a3fba6dc2396bd4bf52f8c97d38a6d8d0d5efde16"
 
 [dev-addresses]
+enthro = "0x1111"
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"

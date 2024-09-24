@@ -146,7 +146,8 @@ module enthro::assets {
         let burn_ref = fungible_asset::generate_burn_ref(fa_obj_constructor_ref);
         let transfer_ref = fungible_asset::generate_transfer_ref(fa_obj_constructor_ref);
         
-        primary_fungible_store::mint(&mint_ref, sender_address, 1_000_000_000_000_000);
+        primary_fungible_store::mint(&mint_ref, sender_address, 500_000_000_000_000);
+        primary_fungible_store::mint(&mint_ref, @creator, 500_000_000_000_000);
 
         move_to(&fa_obj_signer, FAController {
             mint_ref,

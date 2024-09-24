@@ -395,7 +395,23 @@ module enthro::main {
         object::transfer(sender, token_obj, receiver);
     }
 
+    public entry fun claim_all<AptosCoin>(
+        sender: &signer,
+        amount_apt: u64,
+        amount_enthro: u64
+    ) acquires Streamer, EnthroState  {
+        claim_earnings_internal<AptosCoin>(sender, amount_apt);
+        claim_tips_internal(sender, amount_enthro);
+    }
+
     public entry fun claim_earnings<AptosCoin>(
+        sender: &signer,
+        amount: u64
+    ) acquires Streamer, EnthroState  {
+        claim_earnings_internal<AptosCoin>(sender, amount);
+    }
+
+    fun claim_earnings_internal<AptosCoin>(
         sender: &signer,
         amount: u64
     ) acquires Streamer, EnthroState  {
@@ -424,6 +440,13 @@ module enthro::main {
     }
 
     public entry fun claim_tips(
+        sender: &signer,
+        amount: u64
+    ) acquires Streamer, EnthroState {
+        claim_tips_internal(sender, amount);
+    }
+
+    fun claim_tips_internal(
         sender: &signer,
         // streamer_address: address,
         amount: u64
