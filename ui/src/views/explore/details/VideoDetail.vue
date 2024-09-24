@@ -346,7 +346,7 @@ const share = () => {
         navigator.share({
             title: video.value?.name,
             text: video.value?.description || '',
-            url: `https://thurbe.xyz/videos/${video.value?.videoAddress!}`
+            url: `https://enthro.xyz/videos/${video.value?.videoAddress!}`
         });
     } catch (error) {
         notify.push({

@@ -371,7 +371,7 @@ const startStream = async () => {
             data: {
                 stream_server: createdStream.stream_server,
                 stream_key: createdStream.stream_key,
-                stream_reaction: `https://reactions.thurbe.xyz?id=${stream.value?.streamAddress!}`
+                stream_reaction: `https://reactions.enthro.xyz?id=${stream.value?.streamAddress!}`
             }
         };
 
@@ -510,7 +510,7 @@ const share = () => {
         navigator.share({
             title: stream.value?.name,
             text: stream.value?.description || '',
-            url: `https://thurbe.xyz/streams/${stream.value?.streamAddress!}`
+            url: `https://enthro.xyz/streams/${stream.value?.streamAddress!}`
         });
     } catch (error) {
         notify.push({

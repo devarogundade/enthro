@@ -21,7 +21,7 @@ const walletStore = useWalletStore();
                     <a href="https://devpost.com/software/thube" target="_blank">Docs
                         <OutIcon />
                     </a>
-                    <a href="https://github.com/devarogundade/thurbe" target="_blank">GitHub
+                    <a href="https://github.com/devarogundade/enthro" target="_blank">GitHub
                         <OutIcon />
                     </a>
                 </div>

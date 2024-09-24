@@ -46,7 +46,7 @@ const download = () => {
             <div class="output_image">
                 <img :src="imageUrl" alt="">
             </div>
-            <a :href="imageUrl" :download="'thurbeai_image.webp'" ref="downloadLink" style="display:none;"> </a>
+            <a :href="imageUrl" :download="'enthroai_image.webp'" ref="downloadLink" style="display:none;"> </a>
             <button @click="download">
                 <ImportIcon />
             </button>

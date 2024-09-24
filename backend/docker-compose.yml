@@ -1,15 +1,15 @@
 services:
-  thurbe-backend:
+  enthro-backend:
     depends_on:
       - redis
-    image: thurbe.azurecr.io/thurbe-backend:latest
-    container_name: thurbe-backend
+    image: enthro.azurecr.io/enthro-backend:latest
+    container_name: enthro-backend
     restart: always
     ports:
       - "80:80"
     env_file: .env
     networks:
-      - thurbe-net
+      - enthro-net
   
   redis:
     image: "redis:alpine"
@@ -20,11 +20,11 @@ services:
     volumes:
       - "redis-data:/data"
     networks:
-      - thurbe-net
+      - enthro-net
 
 volumes:
   redis-data:
 
 networks:
-  thurbe-net:
+  enthro-net:
     driver: bridge
