@@ -76,8 +76,6 @@ const selectWalletType = (walletType: WalletType) => {
 
     walletStore.setWalletType(walletType);
     walletStore.setAddress(null);
-
-    localStorage.setItem('wallet-type', walletType.toString());
 };
 
 const accountCreate = (accountType: AccountType) => {

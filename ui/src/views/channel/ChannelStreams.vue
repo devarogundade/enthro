@@ -18,7 +18,6 @@ const streams = ref<Stream[]>([]);
 const getStreams = async () => {
     loading.value = true;
     const result = await EnthroAPI.getStreams(1, route.params.id as any);
-    console.log(result);
     if (result && result.data) {
         streams.value = result.data;
     }
