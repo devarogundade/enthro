@@ -10,15 +10,6 @@ import TelegramIcon from '@/components/icons/TelegramIcon.vue';
 import BubbleIcon from '@/components/icons/BubbleIcon.vue';
 import { ref } from "vue";
 
-const importing = ref<boolean>(false);
-
-const importEnthro = async () => {
-    if (importing.value) return;
-
-
-    importing.value = false;
-};
-
 const route = useRoute();
 </script>
 
@@ -109,9 +100,9 @@ const route = useRoute();
             </div>
         </div>
         <div class="links">
-            <button class="support" @click="importEnthro">
+            <button class="support">
                 <img src="/images/logo.png" alt="">
-                <p>{{ importing ? 'Adding' : 'Add $ENTR' }}</p>
+                <p>$ENTR</p>
             </button>
             <div class="socials">
                 <a href="#">

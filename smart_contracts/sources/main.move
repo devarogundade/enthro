@@ -155,8 +155,8 @@ module enthro::main {
     }
 
     public entry fun start_stream(
-        seed: vector<u8>,
         sender: &signer,
+        seed: vector<u8>,
         title: String,
         description: String,
         token_uri: String,
@@ -217,8 +217,8 @@ module enthro::main {
     }
 
     public entry fun upload_video(
-        seed: vector<u8>,
         sender: &signer,
+        seed: vector<u8>,
         title: String,
         description: String,
         token_uri: String,

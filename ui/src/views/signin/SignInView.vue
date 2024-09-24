@@ -178,6 +178,11 @@ onMounted(() => {
                         </div>
                     </div>
 
+                    <div class="or">
+                        <div></div>
+                        <p>Or</p>
+                    </div>
+
                     <div :class="walletStore.walletType == WalletType.Petra ? `signin_wallet signin_wallet_active` : `signin_wallet`"
                         @click="() => { selectWalletType(WalletType.Petra); }">
                         <div class="signin_wallet_name">
@@ -335,5 +340,32 @@ section {
     font-weight: 600;
     color: var(--bg);
     border: none;
+}
+
+.or {
+    position: relative;
+    margin: 20px 0;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.or>div {
+    background: var(--bg-darkest);
+    height: 1px;
+    width: 100%;
+    position: absolute;
+}
+
+.or p {
+    font-weight: 500px;
+    font-size: 14px;
+    color: var(--tx-dimmed);
+    z-index: 10;
+    padding: 0 16px;
+    position: absolute;
+    background: var(--bg);
 }
 </style>

@@ -170,7 +170,7 @@ onMounted(() => {
             <div class="revenue_title">
                 <p>Total Tips Revenue</p>
                 <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.unclaimed_enthro)),
-                    Converter.fromOctas(revenue.unclaimed_enthro)) }} ENTRE</h3>
+                    Converter.fromOctas(revenue.unclaimed_enthro)) }} ENTR</h3>
             </div>
             <div class="revenue_amounts">
                 <div class="revenue_amount">
@@ -178,7 +178,7 @@ onMounted(() => {
                         <div class="revenue_amount_name_text">
                             <img src="/images/logo.png" alt="theta">
                             <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.unclaimed_enthro)) }}</span>
-                                ENTRE ~ $0,00</p>
+                                ENTR ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
@@ -200,7 +200,7 @@ onMounted(() => {
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/logo.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.claimed_enthro)) }}</span> ENTRE
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.claimed_enthro)) }}</span> ENTR
                                 ~ $0,00</p>
                         </div>
 

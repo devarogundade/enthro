@@ -56,7 +56,7 @@ onMounted(() => {
                     </button>
 
                     <button class="follow_button" v-else>
-                        <UserAddIcon />
+                        <UserAddIcon :color="'var(--primary)'" />
                         <p>Follow</p>
                     </button>
                 </div>
@@ -163,7 +163,7 @@ onMounted(() => {
 }
 
 .follow_button {
-    background: var(--primary-light);
+    background: var(--bg-darkest);
     min-width: 105px;
     padding: 0 20px;
     height: 40px;

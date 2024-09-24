@@ -147,12 +147,12 @@ const isCreator = (): boolean => {
                         </button>
 
                         <button v-else-if="!isFollow" @click="follow" class="creator_follow_light">
-                            <UserAddIcon />
+                            <UserAddIcon :color="'var(--tx-dimmed)'" />
                             <p>{{ following ? 'Loading..' : 'Follow' }}</p>
                         </button>
 
                         <button v-if="!isSuperFollow" @click="super_follow.open = true">
-                            <FlashIcon />
+                            <FlashIcon :color="'var(--bg)'" />
                         </button>
                     </div>
 
@@ -319,7 +319,7 @@ const isCreator = (): boolean => {
 }
 
 .creator_follow_light {
-    background: var(--primary-light) !important;
+    background: var(--bg-darkest) !important;
 }
 
 .creator_follow_icon {

@@ -196,7 +196,7 @@ const sendComment = async () => {
     commenting.value = true;
 
     if (tip.value.amount && tip.value.amount > 0) {
-        const txHash = await Contract.tipVideo(
+        const txHash = await Contract.tipStreamer(
             video.value?.videoAddress as string,
             Converter.toOctas(tip.value.amount)
         );
@@ -398,7 +398,7 @@ onBeforeUnmount(() => {
                     <p>This channel owner only set this content to be to be viewable by Super followers only, Click the
                         button below to super follow.</p>
                     <button @click="super_follow.open = true">
-                        <FlashIcon />
+                        <FlashIcon :color="'var(--bg)'" />
                         <p>Super Follow</p>
                     </button>
                 </div>
@@ -408,8 +408,8 @@ onBeforeUnmount(() => {
                     <h3>Oops, Sorry You are Ineligible to View this Content</h3>
                     <p>This channel owner only set this content to be to be viewable by followers only, Click the
                         button below to follow.</p>
-                    <button @click="follow" class="creator_follow_light">
-                        <UserAddIcon />
+                    <button @click="follow">
+                        <UserAddIcon :color="'var(--bg)'" />
                         <p>{{ following ? 'Loading..' : 'Follow' }}</p>
                     </button>
                 </div>
@@ -453,23 +453,23 @@ onBeforeUnmount(() => {
                 <div class="creator_follow" v-if="!isCreator()">
                     <button v-if="isSuperFollow" class="creator_follow_super">
                         <div class="creator_follow_icon">
-                            <FlashIcon :color="'var(--tx-normal)'" />
+                            <FlashIcon :color="'var(--bg)'" />
                         </div>
                         <p>Following</p>
                     </button>
 
                     <button v-else-if="isFollow">
-                        <UserCheckIcon />
+                        <UserCheckIcon :color="'var(--tx-dimmed)'" />
                         <p>Following</p>
                     </button>
 
                     <button v-else-if="!isFollow" @click="follow" class="creator_follow_light">
-                        <UserAddIcon />
+                        <UserAddIcon :color="'var(--tx-dimmed)'" />
                         <p>{{ following ? 'Loading..' : 'Follow' }}</p>
                     </button>
 
                     <button v-if="!isSuperFollow" @click="super_follow.open = true">
-                        <FlashIcon />
+                        <FlashIcon :color="'var(--bg)'" />
                     </button>
                 </div>
             </div>
@@ -639,7 +639,7 @@ onBeforeUnmount(() => {
     font-size: 12px;
     font-weight: 500;
     line-height: 18px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--bg-dark);
     width: 327px;
     max-width: 100%;
 }
@@ -775,15 +775,6 @@ onBeforeUnmount(() => {
     justify-content: center;
     border: none;
 }
-
-.creator_follow_light {
-    background: var(--primary-light) !important;
-}
-
-.creator_follow_light p {
-    color: var(--tx-normal) !important;
-}
-
 
 .video_contents {
     margin-top: 30px;

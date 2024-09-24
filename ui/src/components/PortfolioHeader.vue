@@ -25,21 +25,22 @@ const claimAll = async () => {
 
     claimingAll.value = true;
 
-    const txHash = await Contract.claimAll();
+    // const txHash = await Contract.claimAll();
 
-    if (txHash) {
-        notify.push({
-            title: 'Successful: Revenue claimed',
-            description: 'Transaction sent',
-            category: 'success'
-        });
-    } else {
-        notify.push({
-            title: 'Error: Interracting with theta api',
-            description: 'Please try again',
-            category: 'error'
-        });
-    }
+    // if (txHash) {
+    //     notify.push({
+    //         title: 'Successful: Revenue claimed',
+    //         description: 'Transaction sent',
+    //         category: 'success'
+    //     });
+    // } else {
+    //     notify.push({
+    //         title: 'Error: Interracting with theta api',
+    //         description: 'Please try again',
+    //         category: 'error'
+    //     });
+    // }
+
     claimingAll.value = false;
 
     emit('refresh');
@@ -299,7 +300,7 @@ const claimAll = async () => {
 .filter {
     gap: 10px;
     padding: 10px 20px;
-    background: var(--primary-light);
+    background: var(--primary);
     border-radius: 4px 4px 0px 0px;
     display: flex;
     align-items: center;
@@ -312,6 +313,6 @@ const claimAll = async () => {
 .filter p {
     font-weight: 500;
     font-size: 14px;
-    color: var(--tx-normal);
+    color: var(--bg);
 }
 </style>
