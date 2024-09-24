@@ -84,7 +84,6 @@ module enthro::main {
     }
 
     fun init_module(enthro: &signer) {
-        
         let (res_signer, res_signer_cap) = account::create_resource_account(enthro, b"Enthro");
 
         // create enthro collection
