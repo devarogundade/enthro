@@ -176,6 +176,33 @@ const Contract = {
         }
     },
 
+    async claimAll(streamer: string): Promise<string | null> {
+        const earnings = await this.getEarnings(streamer);
+        if (earnings == null) return null;
+
+        try {
+            const response = await aptosConnectWallet.signAndSubmitTransaction({
+                payload: {
+                    function: `${enthroId}::main::claim_all`,
+                    functionArguments: [
+                        earnings.unclaimed_apt,
+                        earnings.unclaimed_enthro
+                    ],
+                    typeArguments: [APTOS_COIN]
+                }
+            });
+
+            if (response.status == UserResponseStatus.APPROVED) {
+                return response.args.hash;
+            }
+
+            return null;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    },
+
     async claimEarnings(
         amount: bigint
     ): Promise<string | null> {

@@ -21,25 +21,28 @@ const claimingAll = ref<boolean>(false);
 const emit = defineEmits(['refresh']);
 
 const claimAll = async () => {
+    if (!walletStore.address) return;
     if (claimingAll.value) return;
 
     claimingAll.value = true;
 
-    // const txHash = await Contract.claimAll();
+    const txHash = await Contract.claimAll(
+        walletStore.address
+    );
 
-    // if (txHash) {
-    //     notify.push({
-    //         title: 'Successful: Revenue claimed',
-    //         description: 'Transaction sent',
-    //         category: 'success'
-    //     });
-    // } else {
-    //     notify.push({
-    //         title: 'Error: Interracting with theta api',
-    //         description: 'Please try again',
-    //         category: 'error'
-    //     });
-    // }
+    if (txHash) {
+        notify.push({
+            title: 'Successful: Revenue claimed',
+            description: 'Transaction sent',
+            category: 'success'
+        });
+    } else {
+        notify.push({
+            title: 'Error: Interracting with smart contract failed',
+            description: 'Please try again',
+            category: 'error'
+        });
+    }
 
     claimingAll.value = false;
 
