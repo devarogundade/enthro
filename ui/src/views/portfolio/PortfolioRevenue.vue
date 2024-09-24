@@ -12,6 +12,7 @@ const revenue = ref<Revenue | null>(null);
 const walletStore = useWalletStore();
 const loading = ref<boolean>(true);
 const claimingApt = ref<boolean>(false);
+const claimingEnthro = ref<boolean>(false);
 
 const getRatio = (a: any, b: any) => {
     if (Number(a) == 0) return 0;
@@ -30,16 +31,16 @@ const getRevenue = async (load: boolean = true) => {
 
 const claimEarnings = async () => {
     if (claimingApt.value) return;
-    if (revenue.value?.unclaimed == BigInt(0)) {
+    if (revenue.value?.unclaimed_apt == BigInt(0)) {
         return;
     }
     claimingApt.value = true;
 
-    const txHash = await Contract.claimEarnings(revenue.value?.unclaimed || BigInt(0));
+    const txHash = await Contract.claimEarnings(revenue.value?.unclaimed_apt || BigInt(0));
 
     if (txHash) {
         notify.push({
-            title: 'Successful: Revenue claimed',
+            title: 'Successful: Revenue claimed_apt',
             description: 'Transaction sent',
             category: 'success'
         });
@@ -55,33 +56,33 @@ const claimEarnings = async () => {
     getRevenue(false);
 };
 
-// const claimStreamTips = async () => {
-//     if (claimingThurbe.value) return;
-//     if (revenue.value?.totalUnClaimedThurbe == BigInt(0)) {
-//         return;
-//     }
+const claimStreamTips = async () => {
+    if (claimingEnthro.value) return;
+    if (revenue.value?.unclaimed_enthro == BigInt(0)) {
+        return;
+    }
 
-//     claimingThurbe.value = true;
+    claimingEnthro.value = true;
 
-//     const txHash = await Contract.claimStreamTips(revenue.value?.totalUnClaimedThurbe || BigInt(0));
+    const txHash = await Contract.claimTips(revenue.value?.unclaimed_enthro || BigInt(0));
 
-//     if (txHash) {
-//         notify.push({
-//             title: 'Successful: Revenue claimed',
-//             description: 'Transaction sent',
-//             category: 'success'
-//         });
-//     } else {
-//         notify.push({
-//             title: 'Error: Interracting with theta api',
-//             description: 'Please try again',
-//             category: 'error'
-//         });
-//     }
-//     claimingThurbe.value = false;
+    if (txHash) {
+        notify.push({
+            title: 'Successful: Revenue claimed_apt',
+            description: 'Transaction sent',
+            category: 'success'
+        });
+    } else {
+        notify.push({
+            title: 'Error: Interracting with theta api',
+            description: 'Please try again',
+            category: 'error'
+        });
+    }
+    claimingEnthro.value = false;
 
-//     getRevenue(false);
-// };
+    getRevenue(false);
+};
 
 onMounted(() => {
     getRevenue();
@@ -97,29 +98,29 @@ onMounted(() => {
         <div class="revenue">
             <div class="revenue_title">
                 <p>Total Videos & Streams Revenue</p>
-                <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.claimed)),
-                    Converter.fromOctas(revenue.unclaimed)) }} APT</h3>
+                <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.claimed_apt)),
+                    Converter.fromOctas(revenue.unclaimed_apt)) }} APT</h3>
             </div>
             <div class="revenue_amounts">
                 <div class="revenue_amount">
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/apt.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.unclaimed)) }}</span>
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.unclaimed_apt)) }}</span>
                                 APT ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromOctas(revenue.unclaimed),
-                                Converter.fromOctas(revenue.claimed))
+                            getRatio(Converter.fromOctas(revenue.unclaimed_apt),
+                                Converter.fromOctas(revenue.claimed_apt))
                         }}% Unclaimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromOctas(revenue.unclaimed), Converter.fromOctas(revenue.claimed))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.unclaimed_apt), Converter.fromOctas(revenue.claimed_apt))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromOctas(revenue.unclaimed), Converter.fromOctas(revenue.claimed))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.unclaimed_apt), Converter.fromOctas(revenue.claimed_apt))}%;`">
                         </div>
                     </div>
                 </div>
@@ -128,21 +129,21 @@ onMounted(() => {
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/apt.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.claimed)) }}</span> APT
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.claimed_apt)) }}</span> APT
                                 ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromOctas(revenue.claimed),
-                                Converter.fromOctas(revenue.unclaimed))
+                            getRatio(Converter.fromOctas(revenue.claimed_apt),
+                                Converter.fromOctas(revenue.unclaimed_apt))
                         }}% Claimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromOctas(revenue.claimed), Converter.fromOctas(revenue.unclaimed))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.claimed_apt), Converter.fromOctas(revenue.unclaimed_apt))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromOctas(revenue.claimed), Converter.fromOctas(revenue.unclaimed))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.claimed_apt), Converter.fromOctas(revenue.unclaimed_apt))}%;`">
                         </div>
                     </div>
                 </div>
@@ -165,32 +166,32 @@ onMounted(() => {
             </div>
         </div>
 
-        <!-- <div class="revenue">
+        <div class="revenue">
             <div class="revenue_title">
                 <p>Total Tips Revenue</p>
-                <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.totalClaimedThurbe)),
-                    Converter.fromOctas(revenue.totalUnClaimedThurbe)) }} ENTRE</h3>
+                <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.unclaimed_enthro)),
+                    Converter.fromOctas(revenue.unclaimed_enthro)) }} ENTRE</h3>
             </div>
             <div class="revenue_amounts">
                 <div class="revenue_amount">
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/logo.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.totalUnClaimedThurbe)) }}</span>
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.unclaimed_enthro)) }}</span>
                                 ENTRE ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromOctas(revenue.totalUnClaimedThurbe),
-                                Converter.fromOctas(revenue.totalClaimedThurbe))
+                            getRatio(Converter.fromOctas(revenue.unclaimed_enthro),
+                                Converter.fromOctas(revenue.claimed_enthro))
                         }}% Unclaimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromOctas(revenue.totalUnClaimedThurbe), Converter.fromOctas(revenue.totalClaimedThurbe))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.unclaimed_enthro), Converter.fromOctas(revenue.claimed_enthro))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromOctas(revenue.totalUnClaimedThurbe), Converter.fromOctas(revenue.totalClaimedThurbe))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.unclaimed_enthro), Converter.fromOctas(revenue.claimed_enthro))}%;`">
                         </div>
                     </div>
                 </div>
@@ -199,20 +200,20 @@ onMounted(() => {
                     <div class="revenue_amount_name">
                         <div class="revenue_amount_name_text">
                             <img src="/images/logo.png" alt="theta">
-                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.totalClaimedThurbe)) }}</span> ENTRE
+                            <p><span>{{ Converter.toMoney(Converter.fromOctas(revenue.claimed_enthro)) }}</span> ENTRE
                                 ~ $0,00</p>
                         </div>
 
                         <div class="revenue_amount_percent">{{
-                            getRatio(Converter.fromOctas(revenue.totalClaimedThurbe),
-                                Converter.fromOctas(revenue.totalUnClaimedThurbe)) }}% Claimed</div>
+                            getRatio(Converter.fromOctas(revenue.claimed_enthro),
+                                Converter.fromOctas(revenue.unclaimed_enthro)) }}% Claimed</div>
                     </div>
                     <div class="revenue_amount_progress">
                         <div class="revenue_amount_bar"
-                            :style="`width: ${getRatio(Converter.fromOctas(revenue.totalClaimedThurbe), Converter.fromOctas(revenue.totalUnClaimedThurbe))}%;`">
+                            :style="`width: ${getRatio(Converter.fromOctas(revenue.claimed_enthro), Converter.fromOctas(revenue.unclaimed_enthro))}%;`">
                         </div>
                         <div class="revenue_amount_bar_dot"
-                            :style="`left: ${getRatio(Converter.fromOctas(revenue.totalClaimedThurbe), Converter.fromOctas(revenue.totalUnClaimedThurbe))}%;`">
+                            :style="`left: ${getRatio(Converter.fromOctas(revenue.claimed_enthro), Converter.fromOctas(revenue.unclaimed_enthro))}%;`">
                         </div>
                     </div>
                 </div>
@@ -230,10 +231,10 @@ onMounted(() => {
                 </div>
 
                 <button class="revenue_claim_btn" @click="claimStreamTips">
-                    <CoinsIcon /> {{ claimingThurbe ? 'Claiming...' : 'Claim' }}
+                    <CoinsIcon /> {{ claimingEnthro ? 'Claiming...' : 'Claim' }}
                 </button>
             </div>
-        </div> -->
+        </div>
     </div>
 </template>
 

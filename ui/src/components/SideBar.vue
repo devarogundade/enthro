@@ -12,7 +12,7 @@ import { ref } from "vue";
 
 const importing = ref<boolean>(false);
 
-const importThurbe = async () => {
+const importEnthro = async () => {
     if (importing.value) return;
 
 
@@ -99,7 +99,7 @@ const route = useRoute();
                     <RouterLink to="/ai">
                         <div class="title">
                             <BubbleIcon :color="(route.name as string)?.startsWith('ai') ? '#161618' : '#ABADAE'" />
-                            <h3>Thurbe AI</h3>
+                            <h3>Enthro AI</h3>
                             <div
                                 :class="(route.name as string)?.startsWith('ai') ? 'indicator indicator_active' : 'indicator'">
                             </div>
@@ -109,7 +109,7 @@ const route = useRoute();
             </div>
         </div>
         <div class="links">
-            <button class="support" @click="importThurbe">
+            <button class="support" @click="importEnthro">
                 <img src="/images/logo.png" alt="">
                 <p>{{ importing ? 'Adding' : 'Add $ENTR' }}</p>
             </button>

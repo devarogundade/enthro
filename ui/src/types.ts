@@ -197,6 +197,8 @@ export type Chat = {
 };
 
 export type Revenue = {
-    unclaimed: bigint;
-    claimed: bigint;
+    unclaimed_apt: bigint;
+    claimed_apt: bigint;
+    unclaimed_enthro: bigint;
+    claimed_enthro: bigint;
 };

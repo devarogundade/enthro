@@ -161,7 +161,7 @@ onMounted(() => {
         <div class="app_width">
             <div class="signin">
                 <div class="signin_title">
-                    <h3>Welcome to Thurbe</h3>
+                    <h3>Welcome to Enthro</h3>
                     <p>Choose a preferred wallet to Sign In or Sign Up with</p>
                 </div>
 

@@ -40,7 +40,7 @@ const copyText = (text: string) => {
                 <h3>
                     <ConfigIcon /> Livestream Configs
                 </h3>
-                <p>Use the details sown below to broadcast a stream to your Thurbe channel.</p>
+                <p>Use the details sown below to broadcast a stream to your Enthro channel.</p>
             </div>
 
             <div class="configs">

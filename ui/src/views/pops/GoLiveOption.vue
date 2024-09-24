@@ -32,7 +32,7 @@ const streamType = ref<StreamType>(StreamType.External);
                         <p>Use a Direct stream</p>
                     </div>
                     <p class="viewer_desc">
-                        Go live sharing your screen using Thurbe’s Broadcasting setup presets , Recommend for users new
+                        Go live sharing your screen using Enthro’s Broadcasting setup presets , Recommend for users new
                         to streaming.
                     </p>
                 </div>
@@ -46,7 +46,7 @@ const streamType = ref<StreamType>(StreamType.External);
                         <p>Use a Streaming Software</p>
                     </div>
                     <p class="viewer_desc">
-                        Broadcast your stream to Thurbe from an external software with control over your choice of
+                        Broadcast your stream to Enthro from an external software with control over your choice of
                         broadcast setup preset.
                     </p>
                 </div>

@@ -48,6 +48,7 @@ const Contract = {
     },
 
     async startStream(
+        seed: string,
         title: string,
         description: string,
         visibility: Visibility,
@@ -60,6 +61,7 @@ const Contract = {
                 payload: {
                     function: `${enthroId}::main::start_stream`,
                     functionArguments: [
+                        seed,
                         title,
                         description,
                         `Stream: ${title}`,
@@ -83,6 +85,7 @@ const Contract = {
     },
 
     async uploadVideo(
+        seed: string,
         title: string,
         description: string,
         visibility: Visibility,
@@ -94,6 +97,7 @@ const Contract = {
                 payload: {
                     function: `${enthroId}::main::upload_video`,
                     functionArguments: [
+                        seed,
                         title,
                         description,
                         `Video: ${title}`,
@@ -116,42 +120,16 @@ const Contract = {
     },
 
     // === Viewers Functions ===
-    async tipStream(
+    async tipStreamer(
         stream_address: string,
         amount: string
     ): Promise<string | null> {
         try {
             const response = await aptosConnectWallet.signAndSubmitTransaction({
                 payload: {
-                    function: `${enthroId}::main::tip_stream`,
+                    function: `${enthroId}::main::tip_streamer`,
                     functionArguments: [
                         stream_address,
-                        amount
-                    ]
-                }
-            });
-
-            if (response.status == UserResponseStatus.APPROVED) {
-                return response.args.hash;
-            }
-
-            return null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async tipVideo(
-        video_address: string,
-        amount: string
-    ): Promise<string | null> {
-        try {
-            const response = await aptosConnectWallet.signAndSubmitTransaction({
-                payload: {
-                    function: `${enthroId}::main::tip_video`,
-                    functionArguments: [
-                        video_address,
                         amount
                     ]
                 }
@@ -220,42 +198,14 @@ const Contract = {
         }
     },
 
-    async claimStreamTips(
-        stream_address: string,
+    async claimTips(
         amount: bigint
     ): Promise<string | null> {
         try {
             const response = await aptosConnectWallet.signAndSubmitTransaction({
                 payload: {
-                    function: `${enthroId}::main::claim_stream_tips`,
+                    function: `${enthroId}::main::claim_tips`,
                     functionArguments: [
-                        stream_address,
-                        amount
-                    ]
-                }
-            });
-
-            if (response.status == UserResponseStatus.APPROVED) {
-                return response.args.hash;
-            }
-
-            return null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async claimVideoTips(
-        video_address: string,
-        amount: bigint
-    ): Promise<string | null> {
-        try {
-            const response = await aptosConnectWallet.signAndSubmitTransaction({
-                payload: {
-                    function: `${enthroId}::main::claim_video_tips`,
-                    functionArguments: [
-                        video_address,
                         amount
                     ]
                 }
@@ -283,50 +233,26 @@ const Contract = {
                 },
             }));
 
-            // @ts-ignore
-            return { unclaimed: response[0], claimed: response[1] };
+            return {
+                // @ts-ignore
+                unclaimed_apt: response[0],
+                // @ts-ignore
+                claimed_apt: response[1],
+                // @ts-ignore
+                unclaimed_enthro: response[2],
+                // @ts-ignore
+                claimed_enthro: response[3]
+            };
         } catch (error) {
             console.log(error);
             return null;
         }
     },
 
-    async getStreamTips(
-        stream_address: string
-    ): Promise<Revenue | null> {
-        try {
-            const response = (await aptos.view({
-                payload: {
-                    function: `${enthroId}::main::get_stream_tips`,
-                    functionArguments: [stream_address]
-                },
-            }));
-
-            // @ts-ignore
-            return { unclaimed: response[0], claimed: response[1] };
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    },
-
-    async getVideoTips(
-        video_address: string
-    ): Promise<Revenue | null> {
-        try {
-            const response = (await aptos.view({
-                payload: {
-                    function: `${enthroId}::main::get_video_tips`,
-                    functionArguments: [video_address]
-                },
-            }));
-
-            // @ts-ignore
-            return { unclaimed: response[0], claimed: response[1] };
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
+    newSeed(): string {
+        const array = new Uint8Array(32);
+        window.crypto.getRandomValues(array);
+        return `0x${Array.from(array).map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
     },
 
     getResourceAddress(

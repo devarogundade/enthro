@@ -4,8 +4,7 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-# enthro = "_"
-enthro = "0x0"
+enthro = "_"
 
 [dev-addresses]
 

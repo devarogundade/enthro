@@ -118,8 +118,10 @@ const uploadVideo = async () => {
 
     uploading.value = true;
 
+    const seed = Contract.newSeed();
+
     const streamAddress = Contract.getResourceAddress(
-        walletStore.address, `Stream_${stream.value.name}`
+        walletStore.address, seed
     );
 
     const thumbnailUrl = await Storage.awaitUpload(
@@ -131,6 +133,7 @@ const uploadVideo = async () => {
     ).toFixed(0);
 
     const txHash = await Contract.startStream(
+        seed,
         stream.value.name,
         stream.value.description || '',
         stream.value.visibility,
@@ -242,7 +245,7 @@ const uploadVideo = async () => {
 
                 <div class="input">
                     <p class="label">Thumbnail <span>*</span>
-                        <RouterLink to="/ai">Generate with ThurbeAI</RouterLink>
+                        <RouterLink to="/ai">Generate with EnthroAI</RouterLink>
                     </p>
                     <div class="file_picker">
                         <img :src="stream.thumbnail_file_url" alt="">

@@ -35,7 +35,7 @@ export class MailWorker extends WorkerHost {
             return;
         }
 
-        const subject: string = `${streamer.name} from Thurbe.`;
+        const subject: string = `${streamer.name} from Enthro.`;
 
         const message: string = started ?
             `<p><b>${streamer.channel.name}</b> is starting a live stream now.</p>
