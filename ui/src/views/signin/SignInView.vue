@@ -143,6 +143,7 @@ const googleAuthRequest = async () => {
             image: result.user.photoURL
         };
     } catch (error) {
+        console.log(error);
         notify.push({
             title: 'Error: failed to derive account.',
             description: 'Please try again.',
