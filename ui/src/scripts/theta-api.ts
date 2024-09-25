@@ -92,7 +92,9 @@ const ThetaAPI = {
         try {
             const listIngestorsResponse = await client.get('/ingestor/filter');
             if (listIngestorsResponse.data.body.ingestors.length > 0) {
-                const ingestor = listIngestorsResponse.data.body.ingestors[0].id;
+                const ingestor = listIngestorsResponse.data.body.ingestors[
+                    listIngestorsResponse.data.body.ingestors.length - 1
+                ].id;
 
                 const selectIngestorsResponse = await client.put(`/ingestor/${ingestor}/select`, {
                     tva_stream: id

@@ -374,7 +374,7 @@ const startStream = async () => {
             data: {
                 stream_server: createdStream.stream_server,
                 stream_key: createdStream.stream_key,
-                stream_reaction: `https://reactions.enthro.xyz?id=${stream.value?.streamAddress!}`
+                stream_reaction: `https://enthro-reactions.netlify.app?id=${stream.value?.streamAddress!}`
             }
         };
 
