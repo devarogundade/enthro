@@ -177,7 +177,11 @@ module enthro::main {
         let stream_address = signer::address_of(&stream_signer);
         assert!(!exists<Stream>(stream_address), error::invalid_argument(E_ALREADY_EXISTS));
 
-        let collection = string::utf8(b"Enthro Collection");
+        let collection = if (visibility == VISIBILITY_S_FOLLOWERS) {
+            streamer.s_followers_collection
+        } else {
+            streamer.followers_collection
+        };
 
         let token_id = tokens::create_token(
             res_signer, 
