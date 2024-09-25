@@ -43,17 +43,15 @@ const Converter = {
         }
     },
 
-    convertSecondsToHHMMSS: function (seconds: number): string {
-        const hours = Math.floor(seconds / 3600);
+    convertSecondsToMMSS: function (seconds: number): string {
         const minutes = Math.floor((seconds % 3600) / 60);
         const secs = Math.floor(seconds % 60);
 
         // Pad with leading zeros if necessary
-        const hoursStr = hours.toString().padStart(2, '0');
         const minutesStr = minutes.toString().padStart(2, '0');
         const secsStr = secs.toString().padStart(2, '0');
 
-        return `${hoursStr}:${minutesStr}:${secsStr}`;
+        return `${minutesStr}:${secsStr}`;
     },
 
     toMoney: function (amount: any, max = null) {

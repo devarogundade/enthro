@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import ClockIcon from '@/components/icons/ClockIcon.vue';
 import UserGroupIcon from '@/components/icons/UserGroupIcon.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
-import PlayCircleIcon from '@/components/icons/PlayCircleIcon.vue';
+// import PlayCircleIcon from '@/components/icons/PlayCircleIcon.vue';
 import { type Video, type Account } from "@/types";
 import { onMounted, ref } from "vue";
 // @ts-ignore
@@ -38,8 +39,12 @@ onMounted(() => {
             <div class="video">
                 <div class="thumbnail">
                     <img :src="video.thumbnail" alt="">
-                    <div class="play_button">
+                    <!-- <div class="play_button">
                         <PlayCircleIcon />
+                    </div> -->
+                    <div class="duration">
+                        <ClockIcon />
+                        <p>{{ Converter.convertSecondsToMMSS(video.duration) }}</p>
                     </div>
                 </div>
                 <div class="detail">
@@ -111,6 +116,27 @@ onMounted(() => {
     transform: translate(-50%, -50%);
     z-index: 1;
 }
+
+.duration {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: rgba(32, 34, 39, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.duration p {
+    color: var(--tx-normal);
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
 
 .detail {
     display: flex;
