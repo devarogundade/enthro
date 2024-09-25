@@ -4,7 +4,7 @@ import { aptosConnectWallet } from './connect';
 import { AccountAddress, Aptos, APTOS_COIN, AptosConfig, createResourceAddress, createObjectAddress, Network } from '@aptos-labs/ts-sdk';
 
 const enthroId: string = '0xa8e1a859f49c1d608a4bfbe634d1bc1ca10a898b36fd70b24e6db0baf122ab44';
-export const resSignerAddress: string = '0x36c01d8d73402fbaee5a6d4b9f86140d2ceb8aef96626270f4bc42bb6c2ba987';
+export const resSignerAddress: string = '0x36e07ac623d83a2722e39ab6bbff4c186284774721c96e6053ff410a281c064a';
 
 export const aptos = new Aptos(
     new AptosConfig({ network: Network.TESTNET })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LogoutIcon from '@/components/icons/LogoutIcon.vue';
 import SettingsIcon from '@/components/icons/SettingsIcon.vue';
 import NotificationIcon from '@/components/icons/NotificationIcon.vue';
 import OutIcon from '@/components/icons/OutIcon.vue';
@@ -6,8 +7,23 @@ import WalletIcon from '@/components/icons/WalletIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
 import Converter from '@/scripts/converter';
 import { WalletType } from '@/types';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { aptosConnectWallet } from '@/scripts/connect';
 
+const router = useRouter();
 const walletStore = useWalletStore();
+
+const profile = ref(false);
+
+const logout = async () => {
+    await aptosConnectWallet.disconnect();
+
+    walletStore.setAddress(null);
+    walletStore.setAccount(null);
+
+    router.push('/signin');
+};
 </script>
 
 <template>
@@ -38,11 +54,22 @@ const walletStore = useWalletStore();
                         </button>
                     </RouterLink>
 
-                    <button v-if="walletStore.account">
+                    <button v-if="walletStore.account" @click="profile = !profile">
                         <img src="/images/petra.png" v-if="walletStore.walletType == WalletType.Petra" />
                         <img src="/images/aptos_connect.png" v-if="walletStore.walletType == WalletType.AptosConnect" />
                         <img src="/images/martian.png" v-if="walletStore.walletType == WalletType.Martian" />
                         <p>{{ Converter.fineAddress(walletStore.address, 5) }}</p>
+
+                        <div class="profile" v-show="profile">
+                            <img :src="walletStore.account.image || ''" alt="">
+                            <div class="profile_name">
+                                <p>{{ Converter.fineAddress(walletStore.address, 5) }}</p>
+                                <p>{{ Converter.fineAddress(walletStore.account.email, 8) }}</p>
+                            </div>
+                            <div class="log_out" @click="logout">
+                                <LogoutIcon />
+                            </div>
+                        </div>
                     </button>
 
                     <RouterLink to="/portfolio" v-if="walletStore.account">
@@ -112,6 +139,7 @@ header {
     gap: 12px;
     user-select: none;
     cursor: pointer;
+    position: relative;
 }
 
 .connect button p {
@@ -135,6 +163,47 @@ header {
     align-items: center;
     justify-content: center;
     user-select: none;
+    cursor: pointer;
+}
+
+.profile {
+    padding: 16px 20px;
+    border-radius: 6px;
+    background: var(--bg-dark);
+    border: 1px solid var(--bg-darkest);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: absolute;
+    right: -60px;
+    top: 80px;
+    z-index: 100;
+}
+
+.profile img {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.profile_name p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tx-normal);
+    width: 170px;
+    text-align: left;
+}
+
+.log_out {
+    width: 32px;
+    height: 32px;
+    background: var(--bg);
+    border-radius: 4px;
+    border: 1px solid var(--bg-darker);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
 }
 </style>

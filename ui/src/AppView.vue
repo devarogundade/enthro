@@ -2,9 +2,6 @@
 import { RouterView } from 'vue-router';
 import AppHeader from '@/components/AppHeader.vue';
 import SideBar from '@/components/SideBar.vue';
-import { onMounted } from 'vue';
-import { useWalletStore } from '@/stores/wallet';
-import { useRouter } from 'vue-router';
 </script>
 
 <template>
