@@ -121,6 +121,7 @@ export class AppController {
       dto.description,
       dto.thumbnail,
       dto.visibility,
+      dto.duration,
       dto.thetaId,
       dto.tips
     );

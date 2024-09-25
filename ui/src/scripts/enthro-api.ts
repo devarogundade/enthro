@@ -197,6 +197,7 @@ const EnthroAPI = {
         description: string | null,
         thumbnail: string,
         visibility: Visibility,
+        duration: number,
         thetaId: string | null,
         tips: boolean,
     ): Promise<Video | null> {
@@ -208,6 +209,7 @@ const EnthroAPI = {
                 description,
                 thumbnail,
                 visibility,
+                duration,
                 thetaId,
                 tips,
                 viewers: [],

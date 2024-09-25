@@ -46,6 +46,7 @@ export type VideoForm = {
     thumbnail: File | undefined;
     thumbnail_file_url: string | undefined;
     file_url: string | undefined;
+    duration: number;
     visibility: Visibility;
     tips: boolean;
 };
@@ -168,6 +169,7 @@ export type Video = {
     likes: string[];
     dislikes: string[];
     visibility: Visibility;
+    duration: number;
     created_at: Date;
 };
 

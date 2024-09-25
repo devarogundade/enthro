@@ -48,6 +48,9 @@ export class Video {
     @Prop({ required: true })
     visibility: Visibility;
 
+    @Prop({ default: 0 })
+    duration: number;
+
     @Prop({ required: true })
     created_at: Date;
 }

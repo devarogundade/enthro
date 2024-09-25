@@ -32,6 +32,7 @@ const video = ref<VideoForm>({
     thumbnail: undefined,
     thumbnail_file_url: undefined,
     file_url: undefined,
+    duration: 0,
     visibility: Visibility.Follower,
     tips: false
 });
@@ -64,10 +65,40 @@ const selectVideo = (event: any) => {
     if (files.length > 0) {
         video.value.file_url = URL.createObjectURL(files[0]);
         video.value.file = files[0];
+        getDuration(files[0]).then((duration) => {
+            video.value.duration = duration;
+        });
     }
     else {
         video.value.file = undefined;
     }
+};
+
+const getDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+        // Create a hidden video element
+        const videoElement = document.createElement('video');
+        videoElement.preload = 'metadata'; // Ensure only metadata is loaded, not the full video
+
+        // Create a URL for the file object
+        const fileURL = URL.createObjectURL(file);
+        videoElement.src = fileURL;
+
+        // Set up event listener for when the metadata is loaded
+        videoElement.onloadedmetadata = () => {
+            // The duration is available at this point
+            const duration = videoElement.duration;
+
+            // Clean up by revoking the object URL
+            URL.revokeObjectURL(fileURL);
+
+            resolve(duration);
+        };
+
+        videoElement.onerror = () => {
+            reject('Error loading video metadata');
+        };
+    });
 };
 
 const switchViewers = (visibility: Visibility) => {
@@ -168,6 +199,7 @@ const uploadVideo = async () => {
         video.value.description,
         thumbnailUrl,
         video.value.visibility,
+        video.value.duration,
         // @ts-ignore
         videoResponse.id,
         video.value.tips

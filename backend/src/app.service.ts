@@ -316,6 +316,7 @@ export class AppService {
     description: string | null,
     thumbnail: string,
     visibility: Visibility,
+    duration: number,
     thetaId: string | null,
     tips: boolean,
   ): Promise<Video | null> {
@@ -333,6 +334,7 @@ export class AppService {
         thetaId,
         tips,
         visibility,
+        duration,
         created_at: new Date(),
         viewers: [],
         views: 0,
