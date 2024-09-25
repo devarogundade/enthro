@@ -40,13 +40,13 @@ const claimEarnings = async () => {
 
     if (txHash) {
         notify.push({
-            title: 'Successful: Revenue claimed_apt',
+            title: 'Successful: Revenue claimed',
             description: 'Transaction sent',
             category: 'success'
         });
     } else {
         notify.push({
-            title: 'Error: Interracting with theta api',
+            title: 'Error: Interracting with smart contracts',
             description: 'Please try again',
             category: 'error'
         });
@@ -68,13 +68,13 @@ const claimStreamTips = async () => {
 
     if (txHash) {
         notify.push({
-            title: 'Successful: Revenue claimed_apt',
+            title: 'Successful: Revenue claimed',
             description: 'Transaction sent',
             category: 'success'
         });
     } else {
         notify.push({
-            title: 'Error: Interracting with theta api',
+            title: 'Error: Interracting with smart contracts',
             description: 'Please try again',
             category: 'error'
         });
@@ -161,7 +161,7 @@ onMounted(() => {
                 </div>
 
                 <button class="revenue_claim_btn" @click="claimEarnings">
-                    <CoinsIcon /> {{ claimingApt ? 'Claiming...' : 'Claim' }}
+                    <CoinsIcon :color="'var(--bg)'" /> {{ claimingApt ? 'Claiming...' : 'Claim' }}
                 </button>
             </div>
         </div>
@@ -231,7 +231,7 @@ onMounted(() => {
                 </div>
 
                 <button class="revenue_claim_btn" @click="claimStreamTips">
-                    <CoinsIcon /> {{ claimingEnthro ? 'Claiming...' : 'Claim' }}
+                    <CoinsIcon :color="'var(--bg)'" /> {{ claimingEnthro ? 'Claiming...' : 'Claim' }}
                 </button>
             </div>
         </div>
@@ -393,7 +393,7 @@ onMounted(() => {
 }
 
 .revenue_claim_btn {
-    background: var(--primary-light);
+    background: var(--primary);
     width: 113px;
     height: 40px;
     display: flex;

@@ -223,7 +223,7 @@ const uploadVideo = async () => {
                     </div>
 
                     <div class="nav nav_action" @click="uploadVideo" v-if="activeTab == 2">
-                        <ExportIcon />
+                        <ExportIcon  :color="'var(--bg)'"  />
                         <p>{{ uploading ? 'Creating' : 'Create stream' }}</p>
                     </div>
                 </div>

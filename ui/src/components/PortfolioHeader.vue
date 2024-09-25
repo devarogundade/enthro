@@ -106,14 +106,14 @@ const claimAll = async () => {
             <div class="filter_items">
                 <RouterLink to="/create" v-if="route.name == 'portfolio-videos'">
                     <div class="filter">
-                        <ExportIcon />
+                        <ExportIcon :color="'var(--bg)'" />
                         <p>Upload</p>
                     </div>
                 </RouterLink>
 
                 <RouterLink to="/create/stream" v-if="route.name == 'portfolio-streams'">
                     <div class="filter">
-                        <WifiIcon />
+                        <WifiIcon :color="'var(--bg)'" />
                         <p>Go Live</p>
                     </div>
                 </RouterLink>
