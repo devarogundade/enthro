@@ -200,7 +200,7 @@ const sendComment = async () => {
 
     if (tip.value.amount && tip.value.amount > 0) {
         const txHash = await Contract.tipStreamer(
-            video.value?.videoAddress as string,
+            (video.value?.streamer as Account)?.address,
             Converter.toOctas(tip.value.amount)
         );
 

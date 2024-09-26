@@ -170,7 +170,7 @@ onMounted(() => {
             <div class="revenue_title">
                 <p>Total Tips Revenue</p>
                 <h3>{{ sum(Converter.toMoney(Converter.fromOctas(revenue.unclaimed_enthro)),
-                    Converter.fromOctas(revenue.unclaimed_enthro)) }} ENTR</h3>
+                    Converter.fromOctas(revenue.claimed_enthro)) }} ENTR</h3>
             </div>
             <div class="revenue_amounts">
                 <div class="revenue_amount">

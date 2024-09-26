@@ -3,8 +3,8 @@ import { UserResponseStatus } from '@aptos-labs/wallet-standard';
 import { aptosConnectWallet } from './connect';
 import { AccountAddress, Aptos, APTOS_COIN, AptosConfig, createResourceAddress, createObjectAddress, Network } from '@aptos-labs/ts-sdk';
 
-const enthroId: string = '0x282eaf70825dae0f9f4cdb1033a1df7ddcae4f417b8a511e01cbde2c8c8c7f0c';
-export const resSignerAddress: string = '0x282eaf70825dae0f9f4cdb1033a1df7ddcae4f417b8a511e01cbde2c8c8c7f0c';
+const enthroId: string = '0xb97e95f3ff9a60029be7dc37641faa130c733e012c1e6b69cb3b73c48580c54e';
+export const resSignerAddress: string = '0xcbf890b4c290af9ebdc171d9c89215b2fdbb067e234dd558f29e4d86b7d56800';
 
 export const aptos = new Aptos(
     new AptosConfig({ network: Network.TESTNET })
@@ -122,7 +122,7 @@ const Contract = {
 
     // === Viewers Functions ===
     async tipStreamer(
-        stream_address: string,
+        streamer_address: string,
         amount: string
     ): Promise<string | null> {
         try {
@@ -130,7 +130,7 @@ const Contract = {
                 payload: {
                     function: `${enthroId}::main::tip_streamer`,
                     functionArguments: [
-                        stream_address,
+                        streamer_address,
                         amount
                     ]
                 }

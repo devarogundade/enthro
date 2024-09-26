@@ -473,6 +473,14 @@ module enthro::main {
         // check if the sender owned the stream token
         // assert!(object::owner(token_obj) == sender_address, error::invalid_argument(E_NOT_ALLOWED));
 
+        let enthro_coin = *option::borrow(&state.enthro_coin); 
+
+        assets::transfer_enthro(
+            enthro_coin,
+            sender_address,
+            amount
+        );
+
         streamer.claimed_enthro = streamer.claimed_enthro + amount;
         streamer.unclaimed_enthro = streamer.unclaimed_enthro - amount;
 
