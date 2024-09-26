@@ -994,12 +994,11 @@ onBeforeUnmount(() => {
     gap: 10px;
     height: 60px;
     padding: 0 16px;
-    border: 1px solid var(--bg-darker);
-    background: var(--bg);
+    border: 1px solid var(--bg-darkest);
+    background: var(--bg-dark);
     border-radius: 6px;
     z-index: 1;
-    top: 40px;
-    box-shadow: 0 4px 4px var(--tx-dimmed);
+    top: 50px;
 }
 
 .video_reaction_panel p {

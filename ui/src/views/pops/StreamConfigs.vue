@@ -235,6 +235,10 @@ const copyText = (text: string) => {
     color: var(--tx-semi);
 }
 
+.config .input svg {
+    cursor: pointer;
+}
+
 .close_action {
     margin-top: 40px;
     width: 100%;
