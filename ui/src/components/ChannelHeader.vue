@@ -48,7 +48,7 @@ const follow = async () => {
 
     const txHash = await Contract.followStreamer(
         walletStore.account?.email,
-        walletStore.address,
+        props.channel.owner.address as string,
         Visibility.Follower
     );
 
@@ -85,7 +85,7 @@ const superFollow = async () => {
 
     const txHash = await Contract.followStreamer(
         walletStore.account?.email,
-        walletStore.address,
+        props.channel.owner.address as string,
         Visibility.SuperFollower
     );
 
