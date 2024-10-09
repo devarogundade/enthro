@@ -121,7 +121,7 @@ const updateChannel = async () => {
 
     const txHash = await Contract.createStreamer(
         channel.value.name,
-        'About Channel: Created on Enthro',
+        `About ${channel.value.name}: Created on Enthro`,
         image_url,
         cover_url,
         sFollowAmount,
