@@ -588,7 +588,7 @@ onBeforeUnmount(() => {
 
                         <button @click="sendComment">
                             <SendIcon />
-                            <p>{{ commenting ? 'Sending..' : 'Comment' }}</p>
+                            <p>{{ commenting ? 'Sending..' : 'Send' }}</p>
                         </button>
                     </div>
                 </div>
