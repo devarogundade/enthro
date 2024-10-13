@@ -7,6 +7,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import EnthroAPI from '@/scripts/enthro-api';
 import { aptosConnectWallet } from '@/scripts/connect';
+import { getUserAPTBalance } from '@/scripts/nodit';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FS_API_KEY,
@@ -30,6 +31,11 @@ const fetchAccount = async (address: string) => {
   walletStore.setAccount(account);
 
   if (account) {
+    if (walletStore.address && walletStore.account) {
+      const balance = await getUserAPTBalance(walletStore.address);
+      walletStore.setAptBalance(balance);
+    }
+
     router.push('/');
   }
 };

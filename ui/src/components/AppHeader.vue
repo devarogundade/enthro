@@ -4,12 +4,14 @@ import SettingsIcon from '@/components/icons/SettingsIcon.vue';
 import NotificationIcon from '@/components/icons/NotificationIcon.vue';
 import OutIcon from '@/components/icons/OutIcon.vue';
 import WalletIcon from '@/components/icons/WalletIcon.vue';
+import BalSymbolIcon from '@/components/icons/BalSymbolIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
 import Converter from '@/scripts/converter';
 import { WalletType } from '@/types';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { aptosConnectWallet } from '@/scripts/connect';
+import { getUserAPTBalance } from '@/scripts/nodit';
 
 const router = useRouter();
 const walletStore = useWalletStore();
@@ -24,6 +26,13 @@ const logout = async () => {
 
     router.push('/signin');
 };
+
+watch(profile, async  () => {
+    if (walletStore.address && walletStore.account) {
+        const balance = await getUserAPTBalance(walletStore.address)
+        walletStore.setAptBalance(balance)
+    }
+});
 </script>
 
 <template>
@@ -64,7 +73,13 @@ const logout = async () => {
                             <img :src="walletStore.account.image || ''" alt="">
                             <div class="profile_name">
                                 <p>{{ Converter.fineAddress(walletStore.address, 5) }}</p>
-                                <p>{{ Converter.fineAddress(walletStore.account.email, 8) }}</p>
+                                <p>
+                                    <BalSymbolIcon />
+                                    <span>
+                                        {{ Converter.toMoney(Converter.fromOctas(walletStore.aptBalance)) }}
+                                    </span>
+                                    APT
+                                </p>
                             </div>
                             <div class="log_out" @click="logout">
                                 <LogoutIcon />
@@ -193,6 +208,17 @@ header {
     color: var(--tx-normal);
     width: 170px;
     text-align: left;
+}
+
+.profile_name p:last-child {
+    color: var(--tx-dimmed);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.profile_name p span {
+    color: var(--tx-semi);
 }
 
 .log_out {

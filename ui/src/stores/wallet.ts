@@ -6,7 +6,8 @@ export const useWalletStore = defineStore('address', {
     address: null as string | null,
     walletType: WalletType.AptosConnect,
     account: null as Account | null,
-    accountType: AccountType.Google
+    accountType: AccountType.Google,
+    aptBalance: 0
   }),
   actions: {
     setAddress(newAddress: string | null) {
@@ -25,5 +26,8 @@ export const useWalletStore = defineStore('address', {
     setAccountType(newAccountType: AccountType) {
       this.accountType = newAccountType;
     },
+    setAptBalance(newAptBalance: number) {
+      this.aptBalance = newAptBalance;
+    }
   }
 });
