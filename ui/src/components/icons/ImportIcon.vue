@@ -6,9 +6,9 @@
             stroke-linejoin="round" />
         <path d="M12 4V5.96" stroke="var(--tx-semi)" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
             stroke-linejoin="round" />
-        <path d="M17.52 18.01C16.16 19.25 14.29 20 12 20C7 20 4 16.42 4 12" stroke="#C5E86C" stroke-width="1.5"
+        <path d="M17.52 18.01C16.16 19.25 14.29 20 12 20C7 20 4 16.42 4 12" stroke="var(--primary)" stroke-width="1.5"
             stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M20 12C20 13.05 19.83 14.05 19.51 14.97" stroke="#C5E86C" stroke-width="1.5" stroke-miterlimit="10"
-            stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M20 12C20 13.05 19.83 14.05 19.51 14.97" stroke="var(--primary)" stroke-width="1.5"
+            stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
 </template>
