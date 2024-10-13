@@ -1368,7 +1368,7 @@ onBeforeUnmount(() => {
 }
 
 .comment_react button {
-    width: 150px;
+    padding: 0 20px;
     height: 40px;
     gap: 12px;
     border-radius: 6px;
