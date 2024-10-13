@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import NotifyPop from '@/components/NotifyPop.vue';
 import { onMounted, ref } from 'vue';
 import { useWalletStore } from '@/stores/wallet';
@@ -25,6 +25,7 @@ getAnalytics(app);
 
 const walletStore = useWalletStore();
 const router = useRouter();
+const route = useRoute();
 
 const fetchAccount = async (address: string) => {
   const account = await EnthroAPI.getAccount(address);
@@ -36,7 +37,9 @@ const fetchAccount = async (address: string) => {
       walletStore.setAptBalance(balance);
     }
 
-    router.push('/');
+    if (route.name == 'signin') {
+      router.push('/');
+    }
   }
 };
 
