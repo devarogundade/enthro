@@ -156,7 +156,7 @@ const uploadVideo = async () => {
 
     if (!streamResponse) {
         notify.push({
-            title: 'Error: Uploading video file',
+            title: 'Error: Creating stream',
             description: 'Please try again',
             category: 'error'
         });
@@ -164,7 +164,7 @@ const uploadVideo = async () => {
         return;
     }
 
-    const upload = await EnthroAPI.createStream(
+    const create = await EnthroAPI.createStream(
         streamAddress,
         walletStore.address!,
         stream.value.name!,
@@ -177,9 +177,9 @@ const uploadVideo = async () => {
         stream.value.start_at
     );
 
-    if (!upload) {
+    if (!create) {
         notify.push({
-            title: 'Error: Uploading video file',
+            title: 'Error: Creating stream',
             description: 'Please try again',
             category: 'error'
         });
@@ -223,7 +223,7 @@ const uploadVideo = async () => {
                     </div>
 
                     <div class="nav nav_action" @click="uploadVideo" v-if="activeTab == 2">
-                        <ExportIcon  :color="'var(--bg)'"  />
+                        <ExportIcon :color="'var(--bg)'" />
                         <p>{{ uploading ? 'Creating' : 'Create stream' }}</p>
                     </div>
                 </div>
