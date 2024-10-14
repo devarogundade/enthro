@@ -208,7 +208,7 @@ onMounted(() => {
                 </div>
 
                 <div class="signin_action">
-                    <button @click="connectWallet">Connect Wallet</button>
+                    <button @click="connectWallet">Continue</button>
                 </div>
             </div>
         </div>
